@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBEW Project Comparison: Journeyman-Jobs vs Trampbook</title>
+<style>
+:root{
+  --bg:#0a0a0b;--bg-2:#121214;--bg-3:#1a1a1e;--bg-card:#151518;
+  --border:#2a2a30;--border-2:#3a3a42;
+  --text:#e8e8ea;--text-2:#a0a0a8;--text-3:#6a6a72;
+  --amber:#f59e0b;--amber-2:#fbbf24;--amber-glow:rgba(245,158,11,.15);
+  --blue:#3b82f6;--blue-2:#60a5fa;--blue-glow:rgba(59,130,246,.15);
+  --green:#22c55e;--green-2:#4ade80;--green-glow:rgba(34,197,94,.15);
+  --red:#ef4444;--red-2:#f87171;--red-glow:rgba(239,68,68,.15);
+  --purple:#a855f7;--purple-2:#c084fc;--purple-glow:rgba(168,85,247,.15);
+  --font-mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-2)}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+
+/* Background grid */
+body::before{content:'';position:fixed;inset:0;z-index:-1;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;opacity:.15;pointer-events:none;
+  mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);
+}
+
+.container{max-width:1400px;margin:0 auto;padding:0 24px}
+
+/* Header */
+.hero{padding:80px 0 60px;text-align:center;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--amber-2),var(--amber),var(--red-2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:fadeUp .8s ease}
+.hero .sub{font-size:1.15rem;color:var(--text-2);max-width:700px;margin:0 auto 32px;animation:fadeUp .8s .1s ease both}
+.hero .meta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .2s ease both}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:600;
+  border:1px solid var(--border-2);background:var(--bg-card);color:var(--text-2)}
+.badge.amber{border-color:var(--amber);color:var(--amber-2);background:var(--amber-glow)}
+.badge.blue{border-color:var(--blue);color:var(--blue-2);background:var(--blue-glow)}
+.badge.green{border-color:var(--green);color:var(--green-2);background:var(--green-glow)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes grow{from{width:0}}
+
+/* Section */
+section{padding:48px 0;border-top:1px solid var(--border)}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.section-head .num{font-family:var(--font-mono);font-size:.8rem;color:var(--amber);font-weight:700;
+  padding:4px 10px;border:1px solid var(--amber);border-radius:6px;background:var(--amber-glow)}
+.section-head h2{font-size:1.8rem;font-weight:700;letter-spacing:-.01em}
+.section-head .tag{margin-left:auto;font-size:.75rem;color:var(--text-3);font-family:var(--font-mono)}
+
+/* Cards */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;
+  transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--border-2);transform:translateY(-2px)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* Project headers */
+.proj-card{position:relative;overflow:hidden}
+.proj-card.jj{border-color:var(--amber);background:linear-gradient(135deg,var(--bg-card),rgba(245,158,11,.03))}
+.proj-card.tb{border-color:var(--blue);background:linear-gradient(135deg,var(--bg-card),rgba(59,130,246,.03))}
+.proj-card h3{font-size:1.3rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.proj-card .tagline{color:var(--text-2);font-size:.9rem;margin-bottom:16px}
+.proj-card .stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-family:var(--font-mono);font-size:.7rem;padding:3px 8px;border-radius:4px;
+  background:var(--bg-3);border:1px solid var(--border);color:var(--text-2)}
+
+/* Stat */
+.stat{text-align:center;padding:20px 12px}
+.stat .val{font-size:2.2rem;font-weight:800;font-family:var(--font-mono);letter-spacing:-.02em}
+.stat .lbl{font-size:.75rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+.stat.amber .val{color:var(--amber-2)}
+.stat.blue .val{color:var(--blue-2)}
+.stat.green .val{color:var(--green-2)}
+.stat.red .val{color:var(--red-2)}
+.stat.purple .val{color:var(--purple-2)}
+
+/* Comparison table */
+.compare{width:100%;border-collapse:collapse;font-size:.9rem}
+.compare th,.compare td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.compare th{color:var(--text-3);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;
+  background:var(--bg-2);position:sticky;top:0;z-index:1}
+.compare td{color:var(--text-2)}
+.compare tr:hover td{background:var(--bg-2)}
+.compare .metric{color:var(--text);font-weight:600}
+.compare .jj-col{color:var(--amber-2)}
+.compare .tb-col{color:var(--blue-2)}
+.compare .win{color:var(--green-2);font-weight:600}
+
+/* Progress bars */
+.bar-wrap{margin:12px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:6px}
+.bar-label .name{color:var(--text-2)}
+.bar-label .val{color:var(--text);font-family:var(--font-mono);font-weight:600}
+.bar{height:8px;background:var(--bg-3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;animation:grow 1s ease;transition:width .3s}
+.bar-fill.amber{background:linear-gradient(90deg,var(--amber),var(--amber-2))}
+.bar-fill.blue{background:linear-gradient(90deg,var(--blue),var(--blue-2))}
+.bar-fill.green{background:linear-gradient(90deg,var(--green),var(--green-2))}
+.bar-fill.red{background:linear-gradient(90deg,var(--red),var(--red-2))}
+.bar-fill.purple{background:linear-gradient(90deg,var(--purple),var(--purple-2))}
+
+/* Verdict */
+.verdict{padding:32px;border-radius:12px;border:2px solid;text-align:center;margin:20px 0}
+.verdict.win-jj{border-color:var(--amber);background:linear-gradient(135deg,var(--amber-glow),transparent)}
+.verdict.win-tb{border-color:var(--blue);background:linear-gradient(135deg,var(--blue-glow),transparent)}
+.verdict.win-tie{border-color:var(--green);background:linear-gradient(135deg,var(--green-glow),transparent)}
+.verdict .icon{font-size:2.5rem;margin-bottom:12px}
+.verdict h3{font-size:1.5rem;margin-bottom:8px}
+.verdict p{color:var(--text-2);max-width:600px;margin:0 auto}
+
+/* Complexity table */
+.cx-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.cx-table th,.cx-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.cx-table th{color:var(--text-3);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
+.cx-table .fn{font-family:var(--font-mono);font-size:.8rem;color:var(--text)}
+.cx-table .cx{font-family:var(--font-mono);font-weight:600}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 20px;font-size:.85rem;font-weight:600;color:var(--text-3);cursor:pointer;
+  border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;transition:all .2s;background:none}
+.tab:hover{color:var(--text-2);background:var(--bg-2)}
+.tab.active{color:var(--amber);border-color:var(--border);border-bottom-color:var(--bg);background:var(--bg-card)}
+.tab-content{display:none;animation:fadeIn .3s}
+.tab-content.active{display:block}
+
+/* Feature list */
+.feature{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.feature:last-child{border-bottom:none}
+.feature .ico{flex-shrink:0;width:20px;text-align:center;font-size:1.1rem}
+.feature .txt{flex:1}
+.feature .txt strong{display:block;font-size:.9rem}
+.feature .txt span{font-size:.8rem;color:var(--text-3)}
+
+/* Timeline */
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;padding-bottom:24px}
+.tl-item::before{content:'';position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;
+  border:2px solid var(--amber);background:var(--bg)}
+.tl-item .date{font-family:var(--font-mono);font-size:.75rem;color:var(--text-3)}
+.tl-item .msg{font-size:.9rem;color:var(--text-2);margin-top:2px}
+
+/* Score circle */
+.score-circle{width:120px;height:120px;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
+.score-circle svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.score-circle .bg{stroke:var(--bg-3);stroke-width:8;fill:none}
+.score-circle .fg{stroke-width:8;fill:none;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.score-circle .num{font-size:2rem;font-weight:800;font-family:var(--font-mono)}
+
+/* Recommendation */
+.rec{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+@media(max-width:900px){.rec{grid-template-columns:1fr}}
+.rec-box{padding:24px;border-radius:12px;border:1px solid var(--border)}
+.rec-box h4{font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.rec-box ul{list-style:none;padding:0}
+.rec-box li{padding:6px 0;font-size:.85rem;color:var(--text-2);display:flex;align-items:flex-start;gap:8px}
+.rec-box li::before{content:'→';color:var(--text-3);flex-shrink:0}
+
+footer{padding:48px 0;text-align:center;color:var(--text-3);font-size:.8rem;border-top:1px solid var(--border)}
+footer .gen{font-family:var(--font-mono);margin-top:8px;color:var(--text-3)}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="container">
+<div class="hero">
+  <h1>IBEW Project Comparison</h1>
+  <p class="sub">A comprehensive, data-driven analysis of <strong style="color:var(--amber-2)">Journeyman-Jobs</strong> (Flutter) vs <strong style="color:var(--blue-2)">Trampbook</strong> (React PWA) — two projects solving the same problem: serving IBEW electrical workers with job calls, local info, and union resources.</p>
+  <div class="meta">
+    <span class="badge amber">📊 Codebase-Memory-MCP</span>
+    <span class="badge blue">🔗 Graphify</span>
+    <span class="badge green">🔍 CodeGraph</span>
+    <span class="badge">📅 July 26, 2026</span>
+  </div>
+</div>
+
+<!-- SECTION 1: PROJECT OVERVIEW -->
+<section id="overview">
+  <div class="section-head">
+    <span class="num">01</span>
+    <h2>Project Overview</h2>
+    <span class="tag">codebase-memory-mcp · codegraph</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card jj">
+      <h3>⚡ Journeyman-Jobs</h3>
+      <p class="tagline">Flutter mobile app for IBEW electrical workers — job referrals, crews, settings, and electrical-themed UI.</p>
+      <div class="stack">
+        <span class="chip">Flutter / Dart</span>
+        <span class="chip">Firebase</span>
+        <span class="chip">Riverpod</span>
+        <span class="chip">go_router</span>
+        <span class="chip">shadcn_ui</span>
+        <span class="chip">google_generative_ai</span>
+        <span class="chip">flutter_map</span>
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook (IBEW Tramp Guide)</h3>
+      <p class="tagline">React PWA + Node/Express backend + Python scrapers — job board aggregator for 244+ IBEW locals.</p>
+      <div class="stack">
+        <span class="chip">React 19</span>
+        <span class="chip">Express + tRPC</span>
+        <span class="chip">Drizzle ORM (MySQL)</span>
+        <span class="chip">Radix UI / shadcn</span>
+        <span class="chip">Tavily + Crawl4AI</span>
+        <span class="chip">RAG System</span>
+        <span class="chip">PWA</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SCALE & STRUCTURE -->
+<section id="scale">
+  <div class="section-head">
+    <span class="num">02</span>
+    <h2>Scale & Code Graph Metrics</h2>
+    <span class="tag">codebase-memory-mcp</span>
+  </div>
+  <div class="grid-4">
+    <div class="card stat amber"><div class="val">24,021</div><div class="lbl">JJ — Graph Nodes</div></div>
+    <div class="card stat blue"><div class="val">8,589</div><div class="lbl">TB — Graph Nodes</div></div>
+    <div class="card stat amber"><div class="val">43,436</div><div class="lbl">JJ — Graph Edges</div></div>
+    <div class="card stat blue"><div class="val">15,021</div><div class="lbl">TB — Graph Edges</div></div>
+  </div>
+  <div class="grid-4" style="margin-top:16px">
+    <div class="card stat amber"><div class="val">120,733</div><div class="lbl">JJ — Total LOC (Dart)</div></div>
+    <div class="card stat blue"><div class="val">~58,408</div><div class="lbl">TB — Total LOC (TS/Py/MJS)</div></div>
+    <div class="card stat amber"><div class="val">417</div><div class="lbl">JJ — Dart Files</div></div>
+    <div class="card stat blue"><div class="val">210</div><div class="lbl">TB — TS + TSX Files</div></div>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <h3 style="font-size:1.1rem;margin-bottom:16px">Language Breakdown</h3>
+    <div class="grid-2">
+      <div>
+        <div class="bar-label"><span class="name">Dart (JJ primary)</span><span class="val">399 files</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:95%"></div></div>
+        <div class="bar-label"><span class="name">TypeScript (JJ tooling)</span><span class="val">27 files</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:7%"></div></div>
+        <div class="bar-label"><span class="name">YAML / TOML (JJ config)</span><span class="val">38 files</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:9%"></div></div>
+      </div>
+      <div>
+        <div class="bar-label"><span class="name">TypeScript (TB primary)</span><span class="val">207 files</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:85%"></div></div>
+        <div class="bar-label"><span class="name">Python (TB scrapers)</span><span class="val">16 files</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:7%"></div></div>
+        <div class="bar-label"><span class="name">SQL (TB migrations)</span><span class="val">12 files</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:5%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: ARCHITECTURE -->
+<section id="architecture">
+  <div class="section-head">
+    <span class="num">03</span>
+    <h2>Architecture & Structure</h2>
+    <span class="tag">codebase-memory-mcp · codegraph</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card jj">
+      <h3>⚡ Journeyman-Jobs — Feature-Based (Flutter)</h3>
+      <pre style="font-family:var(--font-mono);font-size:.75rem;color:var(--text-3);line-height:1.5;margin-top:12px;overflow-x:auto">
+lib/
+├── features/          ← 2,542 nodes (largest package)
+│   ├── auth/           ← Firebase Auth + Google/Apple
+│   ├── jobs/           ← Job listings + filters
+│   ├── crews/          ← Crew management
+│   ├── storm/          ← Storm roster tracking
+│   ├── settings/       ← User preferences
+│   ├── onboarding/    ← Multi-step setup
+│   ├── unions/         ← Local union data
+│   ├── tools/          ← Utility tools
+│   ├── navigation/     ← App routing
+│   └── demo/           ← Circuit background studio
+├── core/               ← 784 nodes
+│   ├── models/         ← Data models
+│   ├── providers/      ← Riverpod providers
+│   ├── services/       ← FirestoreService, Auth, etc.
+│   ├── widgets/        ← Shared widgets
+│   └── utils/          ← Utilities
+├── design_system/      ← 970 nodes (2nd largest!)
+│   ├── electrical/     ← Circuit backgrounds, painters
+│   ├── components/     ← JJPrimaryButton, JJTextField
+│   └── widgets/        ← Themed widgets
+├── domain/             ← 27 nodes (enums, exceptions)
+├── data/               ← 116 nodes
+├── legacy/             ← 144 nodes (FlutterFlow shims)
+└── shims/              ← 19 nodes</pre>
+      <div style="margin-top:16px">
+        <div class="bar-label"><span class="name">features → design_system</span><span class="val">384 calls</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:100%"></div></div>
+        <div class="bar-label"><span class="name">features → shims</span><span class="val">93 calls</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:24%"></div></div>
+        <div class="bar-label"><span class="name">core → features</span><span class="val">45 calls</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:12%"></div></div>
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — Client/Server Split (React)</h3>
+      <pre style="font-family:var(--font-mono);font-size:.75rem;color:var(--text-3);line-height:1.5;margin-top:12px;overflow-x:auto">
+client/                 ← 487 nodes
+├── src/pages/          ← 16 page components
+├── src/components/ui/  ← Radix/shadcn (50+ comp)
+├── src/contexts/       ← ThemeContext
+├── src/hooks/          ← useAuth, usePush, etc.
+└── src/lib/            ← Utils, AI context
+server/                 ← 365 nodes
+├── _core/              ← Express setup, startServer
+├── agent/              ← AI agent tools
+├── authService.ts      ← JWT auth (complexity: 64!)
+├── routers.ts          ← tRPC routes (1377 lines!)
+├── jobCallsScraper.ts  ← Multi-strategy scraper
+├── jobCallsScheduler.ts← Cron scheduler
+├── jobCallsNotifier.ts ← Push notifications
+└── ragSystem.ts        ← RAG embeddings
+scrapers/               ← 89 nodes
+├── adapters/           ← UnionActive, WSI, UnionWorx
+└── tavily_search.py    ← Tavily hybrid pipeline
+scripts/                ← 81 nodes
+├── hybrid/             ← Crawl4AI hybrid core
+├── enrichment/         ← Bulk hall enrichment
+├── cba/                ← CBA PDF processing
+├── rag/                ← RAG loaders
+└── maintenance/        ← Geocoding, cleanup
+eval/                   ← Evaluation framework
+drizzle/                ← 10 SQL migrations</pre>
+      <div style="margin-top:16px">
+        <div class="bar-label"><span class="name">God node: cn()</span><span class="val">276 edges</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:100%"></div></div>
+        <div class="bar-label"><span class="name">God node: getDb()</span><span class="val">124 edges</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:45%"></div></div>
+        <div class="bar-label"><span class="name">God node: useAuth()</span><span class="val">34 edges</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:12%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: COMPARISON TABLE -->
+<section id="comparison">
+  <div class="section-head">
+    <span class="num">04</span>
+    <h2>Head-to-Head Comparison</h2>
+    <span class="tag">all sources</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th style="width:25%">Metric</th>
+          <th class="jj-col">⚡ Journeyman-Jobs</th>
+          <th class="tb-col">🌐 Trampbook</th>
+          <th style="width:12%">Winner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="metric">Platform</td><td>Mobile (iOS + Android)</td><td>Web PWA (mobile-first)</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Framework</td><td>Flutter 3.6 / Dart</td><td>React 19 + Vite</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Codebase Size</td><td>120,733 LOC (417 Dart files)</td><td>~58,408 LOC (210 TS/TSX files)</td><td class="win">JJ (depth)</td></tr>
+        <tr><td class="metric">Graph Nodes (CBM)</td><td>24,021 nodes / 43,436 edges</td><td>8,589 nodes / 15,021 edges</td><td class="win">JJ (depth)</td></tr>
+        <tr><td class="metric">State Management</td><td>Riverpod 3.0 + Provider (clean DI)</td><td>React Query + tRPC (server state)</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Backend</td><td>Firebase (Auth, Firestore, Functions, FCM)</td><td>Express + tRPC + Drizzle/MySQL</td><td class="win">TB (control)</td></tr>
+        <tr><td class="metric">Database</td><td>Firebase Firestore (NoSQL, managed)</td><td>MySQL + Drizzle ORM (10 migrations)</td><td class="win">TB (schema)</td></tr>
+        <tr><td class="metric">API Layer</td><td>Firebase SDK (direct, no REST)</td><td>tRPC (43 typed routes, end-to-end types)</td><td class="win">TB (types)</td></tr>
+        <tr><td class="metric">Auth</td><td>Firebase Auth + Google + Apple Sign-In</td><td>JWT (jose) + bcrypt + invite codes</td><td class="win">JJ (turnkey)</td></tr>
+        <tr><td class="metric">Scraping</td><td>Minimal (scraping_scripts/111.py)</td><td>Multi-strategy: adapters + Tavily/Crawl4AI hybrid</td><td class="win">TB (far ahead)</td></tr>
+        <tr><td class="metric">AI Integration</td><td>google_generative_ai + local_ai_model package</td><td>Dual-backend AI (cloud+local) + RAG system</td><td class="win">TB (RAG)</td></tr>
+        <tr><td class="metric">Push Notifications</td><td>FCM + flutter_local_notifications</td><td>Web Push API + service worker</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Maps/Geo</td><td>flutter_map + geolocator (native)</td><td>Google Maps JS (via hook)</td><td class="win">JJ (native)</td></tr>
+        <tr><td class="metric">Offline Support</td><td>Inherent (mobile app)</td><td>PWA service worker caching</td><td class="win">JJ (native)</td></tr>
+        <tr><td class="metric">Max Cyclomatic Complexity</td><td><span style="color:var(--green-2)">14</span> (scrape_ibew111)</td><td><span style="color:var(--red-2)">64</span> (registerAuthRoutes)</td><td class="win">JJ (cleaner)</td></tr>
+        <tr><td class="metric">Top Cognitive Complexity</td><td><span style="color:var(--green-2)">34</span></td><td><span style="color:var(--red-2)">165</span> (parseUnionActiveTable)</td><td class="win">JJ (cleaner)</td></tr>
+        <tr><td class="metric">Test Coverage</td><td>10 test files (unit, integration, perf, architecture)</td><td>11 test files (server + shared)</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">DB Migrations</td><td>N/A (Firestore — schemaless)</td><td>10 versioned Drizzle migrations</td><td class="win">TB (versioned)</td></tr>
+        <tr><td class="metric">Community Detection</td><td>12 clusters (codebase-memory-mcp)</td><td>215 communities (graphify)</td><td class="win">TB (modular)</td></tr>
+        <tr><td class="metric">Documentation</td><td>CLAUDE.md, guides, implementation-plan, TODO</td><td>AGENTS.md, plan.md, todo.md, GRAPH_REPORT.md</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Agent Infrastructure</td><td>51 agent skills (.agent/), .roo rules, .clinerules</td><td>.hermes/ integration, AGENTS.md</td><td class="win">JJ (richer)</td></tr>
+        <tr><td class="metric">Git Maturity</td><td>15 commits (early-stage, feature-driven)</td><td>15+ commits (refactored, Manus removal, cleanup)</td><td class="win">TB (mature)</td></tr>
+        <tr><td class="metric">Deployment Ready</td><td>Android/iOS builds (install.ps1)</td><td>nginx config + deploy webhook + PWA</td><td class="win">TB (deployable)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 5: COMPLEXITY -->
+<section id="complexity">
+  <div class="section-head">
+    <span class="num">05</span>
+    <h2>Code Complexity Analysis</h2>
+    <span class="tag">codebase-memory-mcp cypher</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card jj">
+      <h3>⚡ Journeyman-Jobs — Low Complexity ✅</h3>
+      <p style="color:var(--text-2);font-size:.85rem;margin:8px 0 16px">Max cyclomatic complexity: <strong style="color:var(--green-2)">14</strong>. No function exceeds 34 cognitive load. No loop-heavy hotspots.</p>
+      <table class="cx-table">
+        <thead><tr><th>Function</th><th>Cyclomatic</th><th>Cognitive</th><th>Loops</th></tr></thead>
+        <tbody>
+          <tr><td class="fn">scrape_ibew111</td><td class="cx" style="color:var(--green-2)">14</td><td class="cx">34</td><td>0</td></tr>
+          <tr><td class="fn">Invoke-CbmDownload</td><td class="cx" style="color:var(--green-2)">9</td><td class="cx">31</td><td>1</td></tr>
+          <tr><td class="fn">context7.main</td><td class="cx">9</td><td class="cx">20</td><td>0</td></tr>
+          <tr><td class="fn">parseErrorResponse</td><td class="cx">6</td><td class="cx">8</td><td>0</td></tr>
+          <tr><td class="fn">generateHeaders</td><td class="cx">5</td><td class="cx">5</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:12px;border-radius:8px;background:var(--green-glow);border:1px solid var(--green)">
+        <p style="font-size:.85rem;color:var(--green-2)"><strong>Verdict:</strong> Clean, maintainable code. No function is a refactoring risk.</p>
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — High Complexity ⚠️</h3>
+      <p style="color:var(--text-2);font-size:.85rem;margin:8px 0 16px">Max cyclomatic complexity: <strong style="color:var(--red-2)">64</strong>. Three functions exceed 40 cognitive. Loop-heavy scrapers.</p>
+      <table class="cx-table">
+        <thead><tr><th>Function</th><th>Cyclomatic</th><th>Cognitive</th><th>Loops</th></tr></thead>
+        <tbody>
+          <tr><td class="fn">registerAuthRoutes</td><td class="cx" style="color:var(--red-2)">64</td><td class="cx" style="color:var(--red-2)">126</td><td>0</td></tr>
+          <tr><td class="fn">startServer</td><td class="cx" style="color:var(--red-2)">56</td><td class="cx">93</td><td>2</td></tr>
+          <tr><td class="fn">extract_from_corpus</td><td class="cx" style="color:var(--red-2)">43</td><td class="cx">80</td><td>8</td></tr>
+          <tr><td class="fn">parseUnionActiveTable</td><td class="cx" style="color:var(--red-2)">42</td><td class="cx" style="color:var(--red-2)">165</td><td>8</td></tr>
+          <tr><td class="fn">parseGenericText</td><td class="cx">36</td><td class="cx">86</td><td>5</td></tr>
+          <tr><td class="fn">build_worklist</td><td class="cx">31</td><td class="cx">90</td><td>7</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:12px;border-radius:8px;background:var(--red-glow);border:1px solid var(--red)">
+        <p style="font-size:.85rem;color:var(--red-2)"><strong>Verdict:</strong> <code>registerAuthRoutes</code> (cx=64) and <code>parseUnionActiveTable</code> (cognitive=165, 8 nested loops) are refactoring debt. Split these into smaller functions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: HOTSPOTS -->
+<section id="hotspots">
+  <div class="section-head">
+    <span class="num">06</span>
+    <h2>Architecture Hotspots & God Nodes</h2>
+    <span class="tag">codebase-memory-mcp · graphify</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card jj">
+      <h3>⚡ Journeyman-Jobs — Hotspots (Fan-In)</h3>
+      <p style="color:var(--text-2);font-size:.85rem;margin:8px 0 16px">High fan-in = many callers depend on this. <code>setState</code> is the #1 hotspot (113 callers) — typical for Flutter stateful widgets.</p>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">setState (TailboardModel)</span><span class="val">113</span></div><div class="bar"><div class="bar-fill amber" style="width:100%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">print (builtins)</span><span class="val">92</span></div><div class="bar"><div class="bar-fill red" style="width:81%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">equals (UsersRecordEquality)</span><span class="val">25</span></div><div class="bar"><div class="bar-fill amber" style="width:22%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">_settingsDoc (SettingsService)</span><span class="val">20</span></div><div class="bar"><div class="bar-fill amber" style="width:18%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">currentUser (auth_riverpod)</span><span class="val">19</span></div><div class="bar"><div class="bar-fill amber" style="width:17%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">firestoreService (jobs_provider)</span><span class="val">14</span></div><div class="bar"><div class="bar-fill amber" style="width:12%"></div></div></div>
+      <div style="margin-top:12px;padding:10px;border-radius:6px;background:var(--amber-glow);font-size:.8rem;color:var(--text-2)">
+        ⚠️ <strong>92 calls to <code>print()</code></strong> — debug statements should be replaced with a logger in production.
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — God Nodes (Graphify)</h3>
+      <p style="color:var(--text-2);font-size:.85rem;margin:8px 0 16px">Graphify's god-node analysis. <code>cn()</code> (classname merger) is the most connected node — expected for Tailwind projects. <code>getDb()</code> is the DB access hub.</p>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">cn() — className merge</span><span class="val">276 edges</span></div><div class="bar"><div class="bar-fill blue" style="width:100%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">getDb() — DB connection</span><span class="val">124 edges</span></div><div class="bar"><div class="bar-fill blue" style="width:45%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">useAuth() — auth hook</span><span class="val">34 edges</span></div><div class="bar"><div class="bar-fill blue" style="width:12%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">startServer() — Express boot</span><span class="val">32 edges</span></div><div class="bar"><div class="bar-fill blue" style="width:12%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">scrapeLocalJobCalls()</span><span class="val">29 edges</span></div><div class="bar"><div class="bar-fill blue" style="width:11%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span class="name">registerAuthRoutes()</span><span class="val">19 edges</span></div><div class="bar"><div class="bar-fill blue" style="width:7%"></div></div></div>
+      <div style="margin-top:12px;padding:10px;border-radius:6px;background:var(--blue-glow);font-size:.8rem;color:var(--text-2)">
+        ℹ️ <strong>215 communities detected</strong> by graphify — high modularity. No import cycles detected.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: COMPLETION STATUS -->
+<section id="completion">
+  <div class="section-head">
+    <span class="num">07</span>
+    <h2>Completion Status & What's Left</h2>
+    <span class="tag">TODO files · git history · codegraph</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tb-jj',this)">⚡ Journeyman-Jobs</button>
+    <button class="tab" onclick="showTab('tb-tb',this)">🌐 Trampbook</button>
+  </div>
+
+  <div id="tb-jj" class="tab-content active">
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:1.1rem;margin-bottom:16px">✅ Completed</h3>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Flutter app scaffolded</strong><span>Full Flutter project with Android/iOS, Firebase integration, Riverpod state</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Auth flow</strong><span>Firebase Auth + Google Sign-In + Apple Sign-In</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Core features</strong><span>Jobs, crews, storm roster, settings, onboarding, unions, tools</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Design system</strong><span>970 nodes — electrical circuit backgrounds, themed components</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>FCM + local notifications</strong><span>Push notification infrastructure</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Agent infrastructure</strong><span>51 agent skills, .roo rules, .clinerules — extensive AI-assisted dev setup</span></div></div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1.1rem;margin-bottom:16px">❌ Remaining</h3>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Settings screen completion</strong><span>TODO-TASKS.md outlines full settings screen work needed</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Circuit background redesign</strong><span>implementation-plan.md: 10-phase redesign of electrical background (Version A + B)</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Remove print() statements</strong><span>92 debug prints need replacement with StructuredLogger</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Legacy cleanup</strong><span>144 nodes in lib/legacy/ (FlutterFlow shims) need migration</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Backend scraping</strong><span>Only 1 scraper script (scrape_ibew111). No multi-local scraping pipeline.</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>No server/backend of its own</strong><span>Depends entirely on Firebase. No tRPC/REST API. No DB migrations.</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>TODO.md is empty</strong><span>No high-level roadmap document. Planning scattered across multiple files.</span></div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:1rem;margin-bottom:12px">Git History (most recent)</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="date">e1f2c716</div><div class="msg">feat: Add Circuit Background Studio for new ultra-modern and electrical backgrounds, alongside new crew widgets and services.</div></div>
+        <div class="tl-item"><div class="date">95f7e515</div><div class="msg">feat: Add core services for FCM, biometrics, and local notifications, and integrate Riverpod for state management</div></div>
+        <div class="tl-item"><div class="date">2abc0e77</div><div class="msg">i created a plan and task list to get everything on the settings screen fully operational</div></div>
+        <div class="tl-item"><div class="date">71a33f60</div><div class="msg">feat: add multi-step user onboarding screen, initial data storage screen</div></div>
+        <div class="tl-item"><div class="date">a7ed35f9</div><div class="msg">feat: Initialize new Flutter application structure, comprehensive agent system</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tb-tb" class="tab-content">
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:1.1rem;margin-bottom:16px">✅ Completed</h3>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Full-stack PWA</strong><span>React 19 + Express + tRPC + Drizzle/MySQL — production-deployable</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>16 pages</strong><span>Home, StormRoster, Dashboard, RoadMap, PayScales, JobsAvailable, ScraperStatus, AIAssistant, Login, Register, ForgotPassword, ResetPassword, AdminDocuments, Onboarding, Automation, Preferences</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Multi-strategy scraping</strong><span>Adapters for UnionActive, WSI JobRef, UnionWorx, Generic + Tavily/Crawl4AI hybrid pipeline</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>RAG system</strong><span>Embeddings, chunking, document storage, context injection for AI</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Push notifications</strong><span>Web Push API + service worker + subscription management</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>SMS gateway</strong><span>Twilio integration for SMS notifications</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Email service</strong><span>Nodemailer + Resend for transactional emails</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>10 DB migrations</strong><span>Versioned schema: users, locals, job_postings, scrape_results, contractors, push_subscriptions, etc.</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Eval framework</strong><span>Gold standard, criteria hash, baseline harness, bake-off, fabrication scan</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Deployment config</strong><span>nginx config, deploy-webhook.js, production build (vite + esbuild)</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>65 TS errors fixed</strong><span>tsc --noEmit passes clean</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>CBA database</strong><span>Downloaded and processed CBA PDFs for multiple locals</span></div></div>
+        <div class="feature"><span class="ico">✅</span><div class="txt"><strong>Wage sheet OCR</strong><span>Tesseract + LLM structuring → RAG upload pipeline</span></div></div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1.1rem;margin-bottom:16px">❌ Remaining</h3>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>32 test failures</strong><span>Tests mock old Supabase REST API, code migrated to Drizzle ORM — need test updates</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Split routers.ts</strong><span>1377 lines — should be split into domain-specific router files</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Refactor high-complexity functions</strong><span>registerAuthRoutes (cx=64), parseUnionActiveTable (cognitive=165)</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Hybrid scraper bake-off</strong><span>plan.md: P3-P5 phases (compare baseline vs hybrid, merge winners, production cutover)</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Storm roster completion</strong><span>Storm page exists but storm monitoring/enrichment needs polish</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Voice "Hey SLIM" wake word</strong><span>Web Speech API continuous listening not yet implemented</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Pull-to-refresh</strong><span>Mobile gesture not yet added to Job Calls page</span></div></div>
+        <div class="feature"><span class="ico">🔧</span><div class="txt"><strong>Firewall/HTTPS</strong><span>Port not opened for public HTTPS access</span></div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:1rem;margin-bottom:12px">Git History (most recent)</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="date">871a67c</div><div class="msg">feat: initialize Local 104 evidence-loop practice plan and add agent architecture documentation</div></div>
+        <div class="tl-item"><div class="date">94d0cb4</div><div class="msg">feat: geocode directly via Google API, drop Forge proxy + remove Manus analytics script</div></div>
+        <div class="tl-item"><div class="date">fc14c1d</div><div class="msg">chore: remove Manus OAuth remnants — delete ManusDialog, owner backdoor, OAuth env vars; standalone auth only</div></div>
+        <div class="tl-item"><div class="date">f39ef1e</div><div class="msg">feat: implement PWA dashboard and AI chat features with expanded CBA documentation and scraping utilities</div></div>
+        <div class="tl-item"><div class="date">bcf5bcc</div><div class="msg">feat: implement evaluation gold standard framework, hybrid scraping adapters, and swarm orchestration queueing</div></div>
+        <div class="tl-item"><div class="date">e99c448</div><div class="msg">feat: implement RAG pipeline, expand UI components, and integrate server-side job and profile management tools</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: SCORES -->
+<section id="scores">
+  <div class="section-head">
+    <span class="num">08</span>
+    <h2>Dimension Scores</h2>
+    <span class="tag">synthesized from all sources</span>
+  </div>
+  <div class="grid-4">
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:65"/></svg>
+        <div class="num" style="color:var(--amber-2)">8.0</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Structure</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Journeyman-Jobs</div>
+    </div>
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:49"/></svg>
+        <div class="num" style="color:var(--blue-2)">8.5</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Structure</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div>
+    </div>
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--green);stroke-dasharray:327;stroke-dashoffset:33"/></svg>
+        <div class="num" style="color:var(--green-2)">9.0</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Reliability</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Journeyman-Jobs</div>
+    </div>
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:82"/></svg>
+        <div class="num" style="color:var(--blue-2)">7.5</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Reliability</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-top:16px">
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:131"/></svg>
+        <div class="num" style="color:var(--amber-2)">6.0</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Scalability</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Journeyman-Jobs</div>
+    </div>
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:33"/></svg>
+        <div class="num" style="color:var(--blue-2)">9.0</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Scalability</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div>
+    </div>
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:66"/></svg>
+        <div class="num" style="color:var(--amber-2)">7.9</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Completion</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Journeyman-Jobs</div>
+    </div>
+    <div class="card">
+      <div class="score-circle" style="margin-bottom:12px">
+        <svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:36"/></svg>
+        <div class="num" style="color:var(--blue-2)">8.9</div>
+      </div>
+      <div style="text-align:center;font-size:.85rem;font-weight:600">Completion</div>
+      <div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: VERDICT -->
+<section id="verdict">
+  <div class="section-head">
+    <span class="num">09</span>
+    <h2>Final Verdict</h2>
+    <span class="tag">synthesis</span>
+  </div>
+
+  <div class="verdict win-tb">
+    <div class="icon">🏆</div>
+    <h3>Trampbook wins overall — but Journeyman-Jobs has strengths to preserve</h3>
+    <p>Trampbook is more complete, more scalable, more deployable, and has a richer data pipeline. Journeyman-Jobs has cleaner code, lower complexity, a richer design system, and native mobile advantages. The right answer depends on the goal.</p>
+  </div>
+
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card proj-card jj">
+      <h3 style="font-size:1.1rem;margin-bottom:12px">⚡ Where Journeyman-Jobs Wins</h3>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Code Quality</strong><span>Max complexity 14 vs 64. No function is a refactoring risk.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Design System</strong><span>970 nodes dedicated to electrical-themed UI. Deep investment in visual identity.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Native Mobile</strong><span>Offline support, native maps (flutter_map), biometrics, FCM push.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Auth</strong><span>Turnkey Firebase Auth + Google + Apple Sign-In. No auth complexity debt.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Agent Infrastructure</strong><span>51 agent skills, .roo rules, .clinerules — richest AI-assisted dev setup.</span></div></div>
+    </div>
+    <div class="card proj-card tb">
+      <h3 style="font-size:1.1rem;margin-bottom:12px">🌐 Where Trampbook Wins</h3>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Completeness</strong><span>7 TODO phases, 5 fully done. Full-stack, deployable, 16 pages, 10 DB migrations.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Data Pipeline</strong><span>Multi-strategy scraping (adapters + Tavily/Crawl4AI), eval framework, gold standard, bake-off.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Backend Architecture</strong><span>tRPC (43 typed routes), Drizzle ORM, versioned migrations, Express server.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>AI/RAG</strong><span>Dual-backend AI, RAG embeddings, context injection. Real AI-powered search.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Scalability</strong><span>244+ locals, multi-strategy scraping, modular 215-community architecture.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Deployment</strong><span>nginx config, deploy webhook, production build. Actually deployable now.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Notification Stack</strong><span>Push + SMS (Twilio) + Email (Nodemailer/Resend). Multi-channel.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 10: RECOMMENDATION -->
+<section id="recommendation">
+  <div class="section-head">
+    <span class="num">10</span>
+    <h2>Recommendation: What It Takes to Finish Each</h2>
+    <span class="tag">actionable</span>
+  </div>
+
+  <div class="rec">
+    <div class="rec-box" style="border-color:var(--amber)">
+      <h4 style="color:var(--amber-2)">⚡ Journeyman-Jobs — To Complete</h4>
+      <ul>
+        <li><strong>Build a backend scraping pipeline</strong> — the app has no server. Port Trampbook's scraper adapters or build a Firebase Functions-based equivalent. Without this, the app has no job data.</li>
+        <li><strong>Complete the settings screen</strong> — TODO-TASKS.md outlines the full scope. Wire every setting to Firestore.</li>
+        <li><strong>Finish circuit background redesign</strong> — 10-phase plan exists (implementation-plan.md). Execute Version A + B, then pick a winner.</li>
+        <li><strong>Replace 92 print() calls</strong> — use the existing StructuredLogger. This is a quick win for production readiness.</li>
+        <li><strong>Migrate lib/legacy/ shims</strong> — 144 nodes of FlutterFlow compatibility code. Remove or absorb into core.</li>
+        <li><strong>Write a real TODO.md</strong> — the file is empty. Consolidate the scattered planning docs into one roadmap.</li>
+        <li><strong>Add a data layer</strong> — 116 nodes in data/ package. Needs real repositories and data sources beyond Firestore SDK.</li>
+        <li><strong>Estimated effort: 4-6 weeks</strong> for a solo dev to reach feature parity with Trampbook.</li>
+      </ul>
+    </div>
+    <div class="rec-box" style="border-color:var(--blue)">
+      <h4 style="color:var(--blue-2)">🌐 Trampbook — To Complete</h4>
+      <ul>
+        <li><strong>Fix 32 test failures</strong> — tests mock old Supabase REST API. Update mocks to use Drizzle ORM. Quick win.</li>
+        <li><strong>Split routers.ts</strong> — 1377 lines in one file. Break into auth, jobs, locals, notifications, admin routers.</li>
+        <li><strong>Refactor registerAuthRoutes</strong> — cyclomatic complexity 64. Split into handler functions per route.</li>
+        <li><strong>Refactor parseUnionActiveTable</strong> — cognitive complexity 165, 8 loops. Extract parser strategies.</li>
+        <li><strong>Complete hybrid scraper bake-off</strong> — plan.md phases P3-P5: run hybrid vs baseline, merge winners datasets, wire feature flags.</li>
+        <li><strong>Open firewall for HTTPS</strong> — deploy config is ready, just needs the port opened.</li>
+        <li><strong>Implement "Hey SLIM" wake word</strong> — Web Speech API continuous listening.</li>
+        <li><strong>Add pull-to-refresh</strong> — mobile gesture for Job Calls page.</li>
+        <li><strong>Estimated effort: 2-3 weeks</strong> to reach production-ready state.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;border-color:var(--green);background:var(--green-glow)">
+    <h3 style="font-size:1.1rem;color:var(--green-2);margin-bottom:8px">💡 Strategic Recommendation</h3>
+    <p style="color:var(--text-2);font-size:.95rem;line-height:1.7">
+      <strong>If you can only finish one:</strong> <strong style="color:var(--blue-2)">Trampbook</strong> is closer to production, has a real data pipeline, and is already deployable. The 2-3 week effort to clean up tests and refactor is lower risk than Journeyman-Jobs' 4-6 weeks to build a backend from scratch.<br><br>
+      <strong>If you want the best long-term product:</strong> Consider <strong>converging</strong> — use Trampbook's backend (tRPC, Drizzle, scrapers, RAG) as the API and Journeyman-Jobs' Flutter app as the mobile frontend. Journeyman-Jobs' cleaner code and native mobile UX would sit on top of Trampbook's proven data layer. This eliminates JJ's biggest gap (no backend) and gives TB a native mobile client.<br><br>
+      <strong>If they must stay separate:</strong> Trampbook is the ship-now winner. Journeyman-Jobs is the better-engineered codebase that needs a backend to be useful.
+    </p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>IBEW Project Comparison Report — Generated by Hermes Agent</p>
+  <p class="gen">Sources: codebase-memory-mcp · graphify · codegraph · git · filesystem<br>
+  Data collected: July 26, 2026 · JJ indexed: 24,021 nodes · TB indexed: 8,589 nodes</p>
+</footer>
+
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+// Animate score circles on scroll
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.fg').forEach(c=>{
+        const off=c.style.strokeDashoffset;
+        c.style.strokeDashoffset='327';
+        setTimeout(()=>c.style.strokeDashoffset=off,100);
+      });
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('.score-circle').forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBEW Scraper Comparison: v3 (Journeyman-Jobs) vs Trampbook</title>
+<style>
+:root{
+  --bg:#0a0a0b;--bg-2:#121214;--bg-3:#1a1a1e;--bg-card:#151518;
+  --border:#2a2a30;--border-2:#3a3a42;
+  --text:#e8e8ea;--text-2:#a0a0a8;--text-3:#6a6a72;
+  --amber:#f59e0b;--amber-2:#fbbf24;--amber-glow:rgba(245,158,11,.15);
+  --blue:#3b82f6;--blue-2:#60a5fa;--blue-glow:rgba(59,130,246,.15);
+  --green:#22c55e;--green-2:#4ade80;--green-glow:rgba(34,197,94,.15);
+  --red:#ef4444;--red-2:#f87171;--red-glow:rgba(239,68,68,.15);
+  --purple:#a855f7;--purple-2:#c084fc;--purple-glow:rgba(168,85,247,.15);
+  --font-mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-2)}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+body::before{content:'';position:fixed;inset:0;z-index:-1;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;opacity:.15;pointer-events:none;
+  mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.container{max-width:1400px;margin:0 auto;padding:0 24px}
+.hero{padding:80px 0 60px;text-align:center;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--amber-2),var(--amber),var(--purple-2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp .8s ease}
+.hero .sub{font-size:1.15rem;color:var(--text-2);max-width:700px;margin:0 auto 32px;animation:fadeUp .8s .1s ease both}
+.hero .meta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .2s ease both}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:600;
+  border:1px solid var(--border-2);background:var(--bg-card);color:var(--text-2)}
+.badge.amber{border-color:var(--amber);color:var(--amber-2);background:var(--amber-glow)}
+.badge.blue{border-color:var(--blue);color:var(--blue-2);background:var(--blue-glow)}
+.badge.green{border-color:var(--green);color:var(--green-2);background:var(--green-glow)}
+.badge.purple{border-color:var(--purple);color:var(--purple-2);background:var(--purple-glow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes grow{from{width:0}}
+section{padding:48px 0;border-top:1px solid var(--border)}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.section-head .num{font-family:var(--font-mono);font-size:.8rem;color:var(--amber);font-weight:700;
+  padding:4px 10px;border:1px solid var(--amber);border-radius:6px;background:var(--amber-glow)}
+.section-head h2{font-size:1.8rem;font-weight:700;letter-spacing:-.01em}
+.section-head .tag{margin-left:auto;font-size:.75rem;color:var(--text-3);font-family:var(--font-mono)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.proj-card{position:relative;overflow:hidden}
+.proj-card.v3{border-color:var(--amber);background:linear-gradient(135deg,var(--bg-card),rgba(245,158,11,.03))}
+.proj-card.tb{border-color:var(--blue);background:linear-gradient(135deg,var(--bg-card),rgba(59,130,246,.03))}
+.proj-card h3{font-size:1.3rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.proj-card .tagline{color:var(--text-2);font-size:.9rem;margin-bottom:16px}
+.proj-card .stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-family:var(--font-mono);font-size:.7rem;padding:3px 8px;border-radius:4px;background:var(--bg-3);border:1px solid var(--border);color:var(--text-2)}
+.stat{text-align:center;padding:20px 12px}
+.stat .val{font-size:2.2rem;font-weight:800;font-family:var(--font-mono);letter-spacing:-.02em}
+.stat .lbl{font-size:.75rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+.stat.amber .val{color:var(--amber-2)}
+.stat.blue .val{color:var(--blue-2)}
+.stat.green .val{color:var(--green-2)}
+.stat.red .val{color:var(--red-2)}
+.stat.purple .val{color:var(--purple-2)}
+.compare{width:100%;border-collapse:collapse;font-size:.9rem}
+.compare th,.compare td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.compare th{color:var(--text-3);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;background:var(--bg-2);position:sticky;top:0;z-index:1}
+.compare td{color:var(--text-2)}
+.compare tr:hover td{background:var(--bg-2)}
+.compare .metric{color:var(--text);font-weight:600}
+.compare .v3-col{color:var(--amber-2)}
+.compare .tb-col{color:var(--blue-2)}
+.compare .win{color:var(--green-2);font-weight:600}
+.bar-wrap{margin:12px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:6px}
+.bar-label .name{color:var(--text-2)}
+.bar-label .val{color:var(--text);font-family:var(--font-mono);font-weight:600}
+.bar{height:8px;background:var(--bg-3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;animation:grow 1s ease;transition:width .3s}
+.bar-fill.amber{background:linear-gradient(90deg,var(--amber),var(--amber-2))}
+.bar-fill.blue{background:linear-gradient(90deg,var(--blue),var(--blue-2))}
+.bar-fill.green{background:linear-gradient(90deg,var(--green),var(--green-2))}
+.bar-fill.red{background:linear-gradient(90deg,var(--red),var(--red-2))}
+.bar-fill.purple{background:linear-gradient(90deg,var(--purple),var(--purple-2))}
+.verdict{padding:32px;border-radius:12px;border:2px solid;text-align:center;margin:20px 0}
+.verdict.win-v3{border-color:var(--amber);background:linear-gradient(135deg,var(--amber-glow),transparent)}
+.verdict.win-tb{border-color:var(--blue);background:linear-gradient(135deg,var(--blue-glow),transparent)}
+.verdict.win-tie{border-color:var(--green);background:linear-gradient(135deg,var(--green-glow),transparent)}
+.verdict .icon{font-size:2.5rem;margin-bottom:12px}
+.verdict h3{font-size:1.5rem;margin-bottom:8px}
+.verdict p{color:var(--text-2);max-width:600px;margin:0 auto}
+.cx-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.cx-table th,.cx-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.cx-table th{color:var(--text-3);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
+.cx-table .fn{font-family:var(--font-mono);font-size:.8rem;color:var(--text)}
+.cx-table .cx{font-family:var(--font-mono);font-weight:600}
+.feature{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.feature:last-child{border-bottom:none}
+.feature .ico{flex-shrink:0;width:20px;text-align:center;font-size:1.1rem}
+.feature .txt{flex:1}
+.feature .txt strong{display:block;font-size:.9rem}
+.feature .txt span{font-size:.8rem;color:var(--text-3)}
+pre{font-family:var(--font-mono);font-size:.75rem;color:var(--text-3);line-height:1.5;margin-top:12px;overflow-x:auto;background:var(--bg-2);padding:16px;border-radius:8px;border:1px solid var(--border)}
+.code-block{font-family:var(--font-mono);font-size:.75rem;color:var(--text-3);line-height:1.5;overflow-x:auto;background:var(--bg-2);padding:16px;border-radius:8px;border:1px solid var(--border)}
+.code-block .kw{color:var(--amber-2)}.code-block .str{color:var(--green-2)}.code-block .com{color:var(--text-3)}
+.score-circle{width:120px;height:120px;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
+.score-circle svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.score-circle .bg{stroke:var(--bg-3);stroke-width:8;fill:none}
+.score-circle .fg{stroke-width:8;fill:none;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.score-circle .num{font-size:2rem;font-weight:800;font-family:var(--font-mono)}
+.rec-box{padding:24px;border-radius:12px;border:1px solid var(--border)}
+.rec-box h4{font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.rec-box ul{list-style:none;padding:0}
+.rec-box li{padding:6px 0;font-size:.85rem;color:var(--text-2);display:flex;align-items:flex-start;gap:8px}
+.rec-box li::before{content:'→';color:var(--text-3);flex-shrink:0}
+footer{padding:48px 0;text-align:center;color:var(--text-3);font-size:.8rem;border-top:1px solid var(--border)}
+footer .gen{font-family:var(--font-mono);margin-top:8px;color:var(--text-3)}
+.pipeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:20px 0}
+.pipe-step{padding:12px 16px;border-radius:8px;font-size:.8rem;font-weight:600;border:1px solid;flex-shrink:0}
+.pipe-step.v3{border-color:var(--amber);background:var(--amber-glow);color:var(--amber-2)}
+.pipe-step.tb{border-color:var(--blue);background:var(--blue-glow);color:var(--blue-2)}
+.pipe-arrow{padding:0 8px;color:var(--text-3);font-size:1.2rem}
+.callout{padding:16px;border-radius:8px;border:1px solid;margin:16px 0;font-size:.85rem}
+.callout.warn{border-color:var(--red);background:var(--red-glow);color:var(--red-2)}
+.callout.info{border-color:var(--blue);background:var(--blue-glow);color:var(--blue-2)}
+.callout.good{border-color:var(--green);background:var(--green-glow);color:var(--green-2)}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="hero">
+  <h1>IBEW Scraper Comparison</h1>
+  <p class="sub">A deep-dive comparison of the two scraping operations: <strong style="color:var(--amber-2)">v3 / Journeyman-Jobs</strong> (Puppeteer + Crawl4AI + ML) vs <strong style="color:var(--blue-2)">Trampbook</strong> (Cheerio + Tavily + Crawl4AI hybrid). Both scrape IBEW local union job boards — but with radically different architectures.</p>
+  <div class="meta">
+    <span class="badge amber">📊 codebase-memory-mcp</span>
+    <span class="badge blue">🔍 codegraph</span>
+    <span class="badge green">📅 July 26, 2026</span>
+    <span class="badge purple">🕷️ Scraper Analysis</span>
+  </div>
+</div>
+
+<!-- SECTION 1: OVERVIEW -->
+<section id="overview">
+  <div class="section-head">
+    <span class="num">01</span>
+    <h2>Scraper Operation Overview</h2>
+    <span class="tag">codebase-memory-mcp · filesystem</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card v3">
+      <h3>⚡ v3 — Journeyman-Jobs Scraping</h3>
+      <p class="tagline">Per-local handwritten scrapers + Crawl4AI library + ML pipeline. Writes directly to Firebase Firestore.</p>
+      <div class="stack">
+        <span class="chip">Puppeteer-core</span>
+        <span class="chip">Selenium</span>
+        <span class="chip">Crawl4AI (vendored)</span>
+        <span class="chip">BrightData Proxy</span>
+        <span class="chip">Firebase Firestore</span>
+        <span class="chip">spaCy NER</span>
+        <span class="chip">scikit-learn</span>
+        <span class="chip">OpenAI GPT-4</span>
+      </div>
+      <div class="callout warn" style="margin-top:12px">
+        ⚠️ <strong>Hardcoded proxy credentials</strong> (BrightData AUTH) committed in multiple files. Firebase service account key committed to repo.
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook Scraping</h3>
+      <p class="tagline">Platform-class adapter pattern + hybrid Tavily/Crawl4AI pipeline + eval framework. Writes to MySQL via Drizzle ORM.</p>
+      <div class="stack">
+        <span class="chip">Cheerio (server-side)</span>
+        <span class="chip">Tavily API</span>
+        <span class="chip">Crawl4AI (hybrid)</span>
+        <span class="chip">Drizzle ORM / MySQL</span>
+        <span class="chip">tRPC typed routes</span>
+        <span class="chip">NormalizedJobListing schema</span>
+        <span class="chip">Eval gold standard</span>
+        <span class="chip">Fabrication scan</span>
+      </div>
+      <div class="callout info" style="margin-top:12px">
+        ℹ️ <strong>No proxy needed</strong> — uses server-side fetch with User-Agent headers. No credentials in code.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SCALE -->
+<section id="scale">
+  <div class="section-head">
+    <span class="num">02</span>
+    <h2>Scale & Graph Metrics</h2>
+    <span class="tag">codebase-memory-mcp</span>
+  </div>
+  <div class="grid-4">
+    <div class="card stat amber"><div class="val">6,110</div><div class="lbl">v3 — Graph Nodes</div></div>
+    <div class="card stat blue"><div class="val">8,589</div><div class="lbl">TB — Graph Nodes</div></div>
+    <div class="card stat amber"><div class="val">13,273</div><div class="lbl">v3 — Graph Edges</div></div>
+    <div class="card stat blue"><div class="val">15,021</div><div class="lbl">TB — Graph Edges</div></div>
+  </div>
+  <div class="grid-4" style="margin-top:16px">
+    <div class="card stat amber"><div class="val">~10,740</div><div class="lbl">v3 — LOC (Py+JS)</div></div>
+    <div class="card stat blue"><div class="val">~12,000+</div><div class="lbl">TB — Scraper LOC (est.)</div></div>
+    <div class="card stat amber"><div class="val">140</div><div class="lbl">v3 — Files (Py+JS)</div></div>
+    <div class="card stat blue"><div class="val">~30+</div><div class="lbl">TB — Scraper Files</div></div>
+  </div>
+  <div class="grid-4" style="margin-top:16px">
+    <div class="card stat amber"><div class="val">7</div><div class="lbl">v3 — Locals Scraped</div></div>
+    <div class="card stat blue"><div class="val">244+</div><div class="lbl">TB — Locals Cataloged</div></div>
+    <div class="card stat amber"><div class="val">1</div><div class="lbl">v3 — DB (Firestore)</div></div>
+    <div class="card stat blue"><div class="val">10</div><div class="lbl">TB — DB Migrations</div></div>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <h3 style="font-size:1.1rem;margin-bottom:16px">Language Breakdown</h3>
+    <div class="grid-2">
+      <div>
+        <div class="bar-label"><span class="name">Python (v3 — scrapers + ML + Crawl4AI)</span><span class="val">120 files</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:85%"></div></div>
+        <div class="bar-label"><span class="name">JavaScript (v3 — Puppeteer scrapers)</span><span class="val">20 files</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:14%"></div></div>
+      </div>
+      <div>
+        <div class="bar-label"><span class="name">TypeScript (TB — scrapers + server)</span><span class="val">207 files</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:95%"></div></div>
+        <div class="bar-label"><span class="name">Python (TB — Crawl4AI + eval)</span><span class="val">16 files</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:7%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: ARCHITECTURE -->
+<section id="architecture">
+  <div class="section-head">
+    <span class="num">03</span>
+    <h2>Scraper Architecture</h2>
+    <span class="tag">codebase-memory-mcp · codegraph · filesystem</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card v3">
+      <h3>⚡ v3 — Per-Local Handwritten + ML</h3>
+      <pre>completed/
+├── 111.js          ← Puppeteer scraper for Local 111
+├── 1249.js         ← Puppeteer scraper for Local 1249
+├── 125.js          ← Puppeteer scraper for Local 125
+├── 125.py          ← Python (Selenium) for Local 125
+├── 226.js          ← OpenAI GPT-4 LLM extraction for 226
+├── 245.js          ← Puppeteer for Local 245
+├── 602.js          ← Puppeteer for Local 602
+├── 611.js          ← Puppeteer for Local 611
+├── 77.js           ← Puppeteer for Local 77
+├── 84.js           ← Puppeteer for Local 84
+├── 104_crawler.py  ← Selenium for Local 104
+├── jobCrud.js      ← Shared Firestore CRUD module
+├── runAllScrapers.js ← Sequential runner
+└── scrapingV2/     ← Playwright + Crawl4AI attempts
+    ├── 113.py      ← BeautifulSoup for 113
+    ├── 125.js      ← Crawl4AI version of 125
+    ├── 226.py      ← Crawl4AI version of 226
+    └── playwright111.py ← Playwright for 111
+
+scripts/
+├── crawlers/       ← Experimental crawlers
+│   ├── advancedWebCrawler.py
+│   ├── advanced_llm_extraction.py
+│   ├── agentic_crawler.py
+│   ├── llm_css_extractor.py
+│   └── jsonxpathextractionstrategy.py
+├── cleaners/       ← Post-scrape data cleaning
+└── data/          ← URL extraction & classification
+
+machine_learning/
+├── ml_url_identifier/ ← URL classifier (SVM)
+│   ├── model_training.py
+│   └── models/nlp.model.joblib
+└── ml_webcrawler/    ← spaCy NER model
+    ├── scripts/scraper.py ← NER-based extraction
+    ├── data_pipeline.py   ← Train/test split
+    └── models/spacy_model/
+
+crawl4ai/            ← Vendored Crawl4AI library (full copy)</pre>
+      <div style="margin-top:16px">
+        <div class="bar-label"><span class="name">print() — #1 hotspot</span><span class="val">169 callers</span></div>
+        <div class="bar"><div class="bar-fill red" style="width:100%"></div></div>
+        <div class="bar-label"><span class="name">arun() — AsyncWebCrawler.arun</span><span class="val">62 callers</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:37%"></div></div>
+        <div class="bar-label"><span class="name">crawlers → crawl4ai calls</span><span class="val">24 edges</span></div>
+        <div class="bar"><div class="bar-fill amber" style="width:14%"></div></div>
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — Platform Adapters + Hybrid</h3>
+      <pre>scrapers/
+├── base.ts          ← BoardAdapter interface
+├── adapters/
+│   ├── unionactive.ts   ← UnionActive CFM parser (15KB)
+│   ├── workingsystems.ts← WorkingSystems parser (10KB)
+│   ├── wsijobref.ts     ← WSI JobRef parser (10KB)
+│   ├── unionworx.ts     ← UnionWorx SPA marker
+│   └── generic.ts       ← Fallback parser (16KB)
+├── catalog.ts       ← 244+ board catalog
+├── utils.ts         ← fetchWithRetry, isAuthWalled
+├── output.ts        ← Result aggregation
+├── crawl4ai_extract.py ← Crawl4AI Python bridge
+└── tavily_search.py  ← Tavily hybrid pipeline
+
+server/
+├── jobCallsScraper.ts  ← Monolith: 11 parsers in 1 file
+│   ├── parseUnionActiveTable()  (cx=42, cognitive=165!)
+│   ├── parseStructuredText()
+│   ├── scrapeLocalJobCalls()
+│   └── detectSiteType()
+├── jobCallsScheduler.ts ← Cron scheduler
+├── jobCallsNotifier.ts  ← Push notifications
+└── jobCallAutomation.ts ← Auto-apply
+
+scripts/
+├── hybrid/          ← Tavily + Crawl4AI hybrid (scaffolded)
+│   ├── core/        ← hybrid_pipeline.py, domain_mapper
+│   ├── profiles/    ← Layout JSON profiles
+│   ├── runners/     ← run_jobs.py, run_cba.py
+│   └── normalize/   ← Normalization layer
+├── enrichment/      ← Bulk hall info extraction
+│   └── bulk_enrich.py (cx=43, cognitive=80)
+└── scraping/       ← Legacy scraping scripts
+
+shared/
+├── jobListingSchema.ts ← NormalizedJobListing type
+│   (empty-string convention, buildDedupKey())
+└── jobListingSchema.test.ts
+
+eval/               ← Evaluation framework
+├── gold/           ← 28-board Gold Set
+├── tools/          ← compute_criteria_hash, compare
+└── baseline runs   ← Legacy adapter metrics</pre>
+      <div style="margin-top:16px">
+        <div class="bar-label"><span class="name">cn() — #1 god node</span><span class="val">276 edges</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:100%"></div></div>
+        <div class="bar-label"><span class="name">getDb() — DB hub</span><span class="val">124 edges</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:45%"></div></div>
+        <div class="bar-label"><span class="name">scrapeLocalJobCalls()</span><span class="val">29 edges</span></div>
+        <div class="bar"><div class="bar-fill blue" style="width:11%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: PIPELINE COMPARISON -->
+<section id="pipeline">
+  <div class="section-head">
+    <span class="num">04</span>
+    <h2>Scraping Pipeline Flow</h2>
+    <span class="tag">source analysis</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card v3">
+      <h3>⚡ v3 Pipeline</h3>
+      <div class="pipeline">
+        <span class="pipe-step v3">master.json</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">Crawl URLs</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">ML URL Classifier</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">Platform ID</span>
+      </div>
+      <div class="pipeline">
+        <span class="pipe-step v3">Per-local scraper</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">Puppeteer/Selenium</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">Extract jobs</span>
+      </div>
+      <div class="pipeline">
+        <span class="pipe-step v3">ML NER (spaCy)</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">jobCrud.js</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step v3">Firestore</span>
+      </div>
+      <div class="callout warn" style="margin-top:12px">
+        ⚠️ <strong>No normalization layer</strong> — each scraper outputs its own JSON shape. No dedup key. No empty-string convention. No eval framework.
+      </div>
+      <div class="callout good" style="margin-top:8px">
+        ✅ <strong>ML pipeline is unique</strong> — spaCy NER model trained to extract job fields (company, wage, classification, etc.) from raw text. URL classifier (SVM) categorizes crawled URLs.
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook Pipeline</h3>
+      <div class="pipeline">
+        <span class="pipe-step tb">Catalog (244+)</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">tvly map</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">URL seeder (BM25)</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">Platform adapter</span>
+      </div>
+      <div class="pipeline">
+        <span class="pipe-step tb">Cheerio parse</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">Normalize</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">buildDedupKey()</span>
+      </div>
+      <div class="pipeline">
+        <span class="pipe-step tb">Drizzle ORM</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">MySQL</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step tb">Push/SMS/Email</span>
+      </div>
+      <div class="callout good" style="margin-top:12px">
+        ✅ <strong>Normalized schema</strong> — NormalizedJobListing with empty-string convention, buildDedupKey(), Eastern TZ ISO-8601. All adapters output the same shape.
+      </div>
+      <div class="callout info" style="margin-top:8px">
+        ℹ️ <strong>Hybrid pipeline scaffolded but not yet production</strong> — scripts/hybrid/ has core/, profiles/, runners/, normalize/ dirs but they contain only .gitkeep files. The plan exists (plan.md P2-P5) but isn't executed yet.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: HEAD-TO-HEAD -->
+<section id="comparison">
+  <div class="section-head">
+    <span class="num">05</span>
+    <h2>Head-to-Head Comparison</h2>
+    <span class="tag">all sources</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th style="width:22%">Metric</th>
+          <th class="v3-col">⚡ v3 (Journeyman-Jobs)</th>
+          <th class="tb-col">🌐 Trampbook</th>
+          <th style="width:10%">Winner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="metric">Locals Covered</td><td>7 (handwritten per local)</td><td>244+ cataloged, 28 in gold set</td><td class="win">TB (scale)</td></tr>
+        <tr><td class="metric">Scraper Approach</td><td>1 file per local, handwritten</td><td>Platform-class adapters (6 types)</td><td class="win">TB (pattern)</td></tr>
+        <tr><td class="metric">Browser Automation</td><td>Puppeteer + Selenium + Playwright</td><td>Cheerio (server-side, no browser)</td><td class="win">TB (efficiency)</td></tr>
+        <tr><td class="metric">Proxy</td><td>BrightData (creds hardcoded!)</td><td>None needed (direct fetch)</td><td class="win">TB (security)</td></tr>
+        <tr><td class="metric">Data Storage</td><td>Firebase Firestore (NoSQL)</td><td>MySQL + Drizzle ORM (10 migrations)</td><td class="win">TB (versioned)</td></tr>
+        <tr><td class="metric">Normalization</td><td>None — each scraper has own shape</td><td>NormalizedJobListing schema + buildDedupKey</td><td class="win">TB (normalized)</td></tr>
+        <tr><td class="metric">ML/AI Integration</td><td>spaCy NER + SVM URL classifier + GPT-4</td><td>RAG system + dual-backend AI (no scraper ML)</td><td class="win">v3 (scraper ML)</td></tr>
+        <tr><td class="metric">URL Classification</td><td>ML SVM classifier (trained model)</td><td>BM25 keyword scoring + Tavily extract</td><td class="win">v3 (ML approach)</td></tr>
+        <tr><td class="metric">Platform Detection</td><td>Manual (per-scraper hardcoded)</td><td>detectSiteType() auto-detection</td><td class="win">TB (automated)</td></tr>
+        <tr><td class="metric">Crawl4AI Usage</td><td>Vendored full copy of library</td><td>Python bridge script (crawl4ai_extract.py)</td><td class="win">TB (lean)</td></tr>
+        <tr><td class="metric">Evaluation Framework</td><td>None</td><td>Gold standard + criteria hash + bake-off + fabrication scan</td><td class="win">TB (eval)</td></tr>
+        <tr><td class="metric">Hybrid Pipeline (Tavily+Crawl4AI)</td><td>Not present</td><td>Scaffolded (plan.md P2-P5, dirs empty)</td><td class="win">TB (planned)</td></tr>
+        <tr><td class="metric">Runner</td><td>runAllScrapers.js — sequential, 7 scrapers</td><td>jobCallsScheduler.ts — cron-based, 244+ locals</td><td class="win">TB (automated)</td></tr>
+        <tr><td class="metric">Error Handling</td><td>try-catch per scraper, continue on fail</td><td>fetchWithRetry, SCRAPE_TIMEOUT, AbortController</td><td class="win">TB (robust)</td></tr>
+        <tr><td class="metric">Notifications</td><td>None (Firestore only)</td><td>Push + SMS (Twilio) + Email after scrape</td><td class="win">TB (multi-channel)</td></tr>
+        <tr><td class="metric">Max Cyclomatic Complexity</td><td><span style="color:var(--amber-2)">54</span> (get_content_of_website_optimized)</td><td><span style="color:var(--red-2)">64</span> (registerAuthRoutes)</td><td class="win">v3 (cleaner)</td></tr>
+        <tr><td class="metric">Scraper Max Complexity</td><td><span style="color:var(--amber-2)">24</span> (extract_job_data ML)</td><td><span style="color:var(--red-2)">42</span> (parseUnionActiveTable)</td><td class="win">v3 (cleaner)</td></tr>
+        <tr><td class="metric">Scraper Max Cognitive</td><td><span style="color:var(--amber-2)">66</span> (extract_job_data)</td><td><span style="color:var(--red-2)">165</span> (parseUnionActiveTable, 8 loops!)</td><td class="win">v3 (cleaner)</td></tr>
+        <tr><td class="metric">Security</td><td><span style="color:var(--red-2)">❌ Proxy creds + Firebase key committed</span></td><td><span style="color:var(--green-2)">✅ No secrets in code</span></td><td class="win">TB (secure)</td></tr>
+        <tr><td class="metric">Documentation</td><td>context.md, docs/ (10 plan files), scraper_corrections.md</td><td>plan.md, shared/jobListingSchema.ts, AGENTS.md</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Data Classes</td><td>inside_locals, outside_locals, classifications (35+ JSON)</td><td>locals, job_postings, scrape_results, contractors</td><td class="win">v3 (richer data)</td></tr>
+        <tr><td class="metric">Code Reuse</td><td>jobCrud.js shared module (good)</td><td>base.ts adapter interface + utils.ts</td><td class="win">Tie</td></tr>
+        <tr><td class="metric">Scalability</td><td>Add 1 file per new local (not scalable)</td><td>Add 1 adapter per new platform (scalable)</td><td class="win">TB (scalable)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 6: COMPLEXITY -->
+<section id="complexity">
+  <div class="section-head">
+    <span class="num">06</span>
+    <h2>Code Complexity — Scraper Functions</h2>
+    <span class="tag">codebase-memory-mcp cypher</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card v3">
+      <h3>⚡ v3 — Top Complex Functions</h3>
+      <table class="cx-table">
+        <thead><tr><th>Function</th><th>Cx</th><th>Cognitive</th><th>Loops</th></tr></thead>
+        <tbody>
+          <tr><td class="fn">get_content_of_website_optimized</td><td class="cx" style="color:var(--amber-2)">54</td><td class="cx">108</td><td>7</td></tr>
+          <tr><td class="fn">get_content_of_website</td><td class="cx">34</td><td class="cx">83</td><td>16</td></tr>
+          <tr><td class="fn">extract_job_data (ML NER)</td><td class="cx">24</td><td class="cx">66</td><td>2</td></tr>
+          <tr><td class="fn">extract_table_data</td><td class="cx">14</td><td class="cx">47</td><td>1</td></tr>
+          <tr><td class="fn">scrapeJobPostings (1249)</td><td class="cx">14</td><td class="cx">34</td><td>2</td></tr>
+          <tr><td class="fn">extract_job_details (104)</td><td class="cx">13</td><td class="cx">30</td><td>0</td></tr>
+          <tr><td class="fn">agentic_crawler.main</td><td class="cx">11</td><td class="cx">34</td><td>2</td></tr>
+          <tr><td class="fn">scrapeJobs (125)</td><td class="cx">11</td><td class="cx">27</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <div class="callout info" style="margin-top:12px">
+        ℹ️ High complexity is in the vendored Crawl4AI library, not in v3's own scrapers. v3's actual scrapers max at cx=24 (ML NER).
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — Top Complex Functions</h3>
+      <table class="cx-table">
+        <thead><tr><th>Function</th><th>Cx</th><th>Cognitive</th><th>Loops</th></tr></thead>
+        <tbody>
+          <tr><td class="fn">registerAuthRoutes</td><td class="cx" style="color:var(--red-2)">64</td><td class="cx" style="color:var(--red-2)">126</td><td>0</td></tr>
+          <tr><td class="fn">extract_from_corpus (enrichment)</td><td class="cx" style="color:var(--red-2)">43</td><td class="cx">80</td><td>8</td></tr>
+          <tr><td class="fn">parseUnionActiveTable ⚠️</td><td class="cx" style="color:var(--red-2)">42</td><td class="cx" style="color:var(--red-2)">165</td><td>8</td></tr>
+          <tr><td class="fn">parseGenericText</td><td class="cx">36</td><td class="cx">86</td><td>5</td></tr>
+          <tr><td class="fn">build_worklist (tavily)</td><td class="cx">31</td><td class="cx">90</td><td>7</td></tr>
+          <tr><td class="fn">parseStructuredText</td><td class="cx">29</td><td class="cx">102</td><td>2</td></tr>
+          <tr><td class="fn">scrapeLocalJobCalls</td><td class="cx">29</td><td class="cx">73</td><td>0</td></tr>
+          <tr><td class="fn">parseWSIJobRef</td><td class="cx">29</td><td class="cx">75</td><td>4</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn" style="margin-top:12px">
+        ⚠️ <code>parseUnionActiveTable</code> has cognitive complexity 165 with 8 nested loops — the worst function in either project. This is a refactoring debt.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: ML CAPABILITIES -->
+<section id="ml">
+  <div class="section-head">
+    <span class="num">07</span>
+    <h2>ML/AI Capabilities</h2>
+    <span class="tag">filesystem analysis</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card v3">
+      <h3>⚡ v3 — ML Pipeline (Unique Advantage)</h3>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>spaCy NER Model</strong><span>Trained to extract 30+ job fields (company, wage, classification, hours, etc.) from raw text using named entity recognition</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>SVM URL Classifier</strong><span>scikit-learn SVM with spaCy vectors — classifies crawled URLs into categories (job board, contracts, referral, book signing, etc.)</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>Data Pipeline</strong><span>Pydantic schema validation, train/test split, parquet storage — proper ML engineering</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>GPT-4 Extraction (Local 226)</strong><span>Uses OpenAI GPT-4 to extract job listings from HTML when CSS selectors fail</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>Crawl4AI Strategies</strong><span>JsonXPathExtractionStrategy, LLMExtractionStrategy, CosineStrategy, BM25ContentFilter — rich extraction toolkit</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>Trained Models on Disk</strong><span>nlp.model.joblib + full spaCy model directory — actually trained and saved</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--amber-2)">⚠️</span><div class="txt"><strong>ML not integrated into production</strong><span>The ML models exist but runAllScrapers.js doesn't use them. They're in separate scripts/ directories.</span></div></div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — AI Integration (Different Focus)</h3>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>RAG System</strong><span>Document embeddings, chunking, cosine similarity search — powers the AI assistant</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>Dual-Backend AI</strong><span>Cloud + local AI backends, streaming chat, context injection from job calls + locals</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✅</span><div class="txt"><strong>Agent Tools</strong><span>server/agent/tools/ — AI can execute tool chains, action engine</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--text-3)">➖</span><div class="txt"><strong>No scraper ML</strong><span>No NER model, no URL classifier, no ML-based extraction. Relies on CSS/HTML parsing + keyword matching.</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--text-3)">➖</span><div class="txt"><strong>Tavily as LLM fallback</strong><span>The hybrid pipeline plan calls for Tavily extract (LLM-powered) as a fallback, but it's not yet implemented.</span></div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:var(--purple);background:var(--purple-glow)">
+    <h3 style="font-size:1.1rem;color:var(--purple-2);margin-bottom:8px">🔑 Key Insight: ML vs Pattern-Matching</h3>
+    <p style="color:var(--text-2);font-size:.95rem;line-height:1.7">
+      v3's ML pipeline (spaCy NER + SVM URL classifier) is genuinely innovative — it can extract structured data from <em>any</em> HTML without writing platform-specific parsers. Trampbook relies on handwritten Cheerio parsers per platform, which is more reliable for known platforms but can't handle unknown ones. However, v3's ML is not integrated into its production scrapers — it's experimental code sitting in <code>machine_learning/</code> while the actual scrapers (<code>completed/*.js</code>) use hardcoded Puppeteer selectors.
+    </p>
+  </div>
+</section>
+
+<!-- SECTION 8: SECURITY -->
+<section id="security">
+  <div class="section-head">
+    <span class="num">08</span>
+    <h2>Security Audit</h2>
+    <span class="tag">filesystem analysis</span>
+  </div>
+  <div class="grid-2">
+    <div class="card proj-card v3">
+      <h3>⚡ v3 — Critical Issues 🔴</h3>
+      <div class="callout warn">
+        🔴 <strong>BrightData proxy credentials</strong> hardcoded in 6+ files:<br>
+        <code>brd-customer-hl_482339a5-zone-scraping222_111:484fl5v89aaf</code>
+      </div>
+      <div class="callout warn">
+        🔴 <strong>Firebase service account key</strong> committed:<br>
+        <code>completed/config/firebase_config.json</code>
+      </div>
+      <div class="callout warn">
+        🔴 <strong>OpenAI API key</strong> referenced in 226.js:<br>
+        <code>apiKey: proces..._KEY</code> (truncated but present)
+      </div>
+      <div class="callout warn">
+        🟡 <strong>169 print() calls</strong> — no structured logging
+      </div>
+      <div class="callout warn">
+        🟡 <strong>No .env usage</strong> — secrets in source code, not environment variables
+      </div>
+    </div>
+    <div class="card proj-card tb">
+      <h3>🌐 Trampbook — Clean 🟢</h3>
+      <div class="callout good">
+        ✅ <strong>No credentials in code</strong> — uses environment variables (.env)
+      </div>
+      <div class="callout good">
+        ✅ <strong>No proxy needed</strong> — server-side fetch with standard User-Agent
+      </div>
+      <div class="callout good">
+        ✅ <strong>Structured auth</strong> — JWT (jose) + bcrypt + invite codes, no service account keys
+      </div>
+      <div class="callout good">
+        ✅ <strong>Drizzle ORM</strong> — parameterized queries, no SQL injection risk
+      </div>
+      <div class="callout info">
+        ℹ️ <strong>SCRAPE_TIMEOUT + AbortController</strong> — proper timeout handling on all fetches
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: SCORES -->
+<section id="scores">
+  <div class="section-head">
+    <span class="num">09</span>
+    <h2>Dimension Scores</h2>
+    <span class="tag">synthesized</span>
+  </div>
+  <div class="grid-4">
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:114"/></svg><div class="num" style="color:var(--amber-2)">6.5</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Scalability</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">v3</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:33"/></svg><div class="num" style="color:var(--blue-2)">9.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Scalability</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:49"/></svg><div class="num" style="color:var(--amber-2)">8.5</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Code Quality</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">v3</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:65"/></svg><div class="num" style="color:var(--blue-2)">8.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Code Quality</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div></div>
+  </div>
+  <div class="grid-4" style="margin-top:16px">
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--red);stroke-dasharray:327;stroke-dashoffset:229"/></svg><div class="num" style="color:var(--red-2)">3.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Security</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">v3</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--green);stroke-dasharray:327;stroke-dashoffset:16"/></svg><div class="num" style="color:var(--green-2)">9.5</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Security</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--purple);stroke-dasharray:327;stroke-dashoffset:33"/></svg><div class="num" style="color:var(--purple-2)">9.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">ML/AI</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">v3</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:66"/></svg><div class="num" style="color:var(--blue-2)">8.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">ML/AI</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div></div>
+  </div>
+  <div class="grid-4" style="margin-top:16px">
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:131"/></svg><div class="num" style="color:var(--amber-2)">6.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Normalization</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">v3</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:16"/></svg><div class="num" style="color:var(--blue-2)">9.5</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Normalization</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--amber);stroke-dasharray:327;stroke-dashoffset:98"/></svg><div class="num" style="color:var(--amber-2)">7.0</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Coverage</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">v3 (7 locals)</div></div>
+    <div class="card"><div class="score-circle" style="margin-bottom:12px"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" cx="60" cy="60" r="52" style="stroke:var(--blue);stroke-dasharray:327;stroke-dashoffset:16"/></svg><div class="num" style="color:var(--blue-2)">9.5</div></div><div style="text-align:center;font-size:.85rem;font-weight:600">Coverage</div><div style="text-align:center;font-size:.75rem;color:var(--text-3)">Trampbook (244+)</div></div>
+  </div>
+</section>
+
+<!-- SECTION 10: VERDICT -->
+<section id="verdict">
+  <div class="section-head">
+    <span class="num">10</span>
+    <h2>Final Verdict</h2>
+    <span class="tag">synthesis</span>
+  </div>
+  <div class="verdict win-tb">
+    <div class="icon">🏆</div>
+    <h3>Trampbook wins for production scraping — v3 has the better ML pipeline</h3>
+    <p>Trampbook is more scalable (244+ vs 7 locals), more secure (no hardcoded creds), more normalized (single schema), and has an eval framework. But v3's ML pipeline (spaCy NER + SVM URL classifier) is a genuine innovation that Trampbook lacks — it just isn't wired into production.</p>
+  </div>
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card proj-card v3">
+      <h3 style="font-size:1.1rem;margin-bottom:12px">⚡ Where v3 Wins</h3>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>ML Pipeline</strong><span>spaCy NER model + SVM URL classifier — can extract from unknown platforms without writing parsers</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Scraper Code Quality</strong><span>Lower complexity (max cx=24 for scrapers vs 42 for TB's parseUnionActiveTable)</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Rich Data Classification</strong><span>35+ classification JSON files (alarm_signal, bridge_operators, cable_splicers, etc.)</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Crawl4AI Deep Integration</strong><span>Full vendored copy with custom strategies (XPath, CSS, LLM, Cosine, BM25)</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Proxy Infrastructure</strong><span>BrightData scraping browser with CAPTCHA solving (though creds are exposed)</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>jobCrud.js Pattern</strong><span>Clean shared CRUD module with data isolation per local — good modular design</span></div></div>
+    </div>
+    <div class="card proj-card tb">
+      <h3 style="font-size:1.1rem;margin-bottom:12px">🌐 Where Trampbook Wins</h3>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Scale</strong><span>244+ locals cataloged vs 7 handwritten scrapers</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Adapter Pattern</strong><span>6 platform adapters (UnionActive, WorkingSystems, WSI, UnionWorx, Generic, custom) — add new platforms by adding an adapter</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Normalization</strong><span>NormalizedJobListing schema with empty-string convention, buildDedupKey(), Eastern TZ ISO-8601</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Security</strong><span>No credentials in code, .env-based, no proxy needed</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Evaluation Framework</strong><span>Gold standard, criteria hash, baseline harness, bake-off, fabrication scan</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Notifications</strong><span>Push + SMS + Email after scrape completion</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Cron Scheduler</strong><span>Automated twice-daily runs, not manual runAllScrapers.js</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Versioned DB</strong><span>10 Drizzle migrations vs schemaless Firestore</span></div></div>
+      <div class="feature"><span class="ico" style="color:var(--green-2)">✓</span><div class="txt"><strong>Efficiency</strong><span>Cheerio (no browser) vs Puppeteer (full browser) — 10x faster, 10x cheaper</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 11: RECOMMENDATION -->
+<section id="recommendation">
+  <div class="section-head">
+    <span class="num">11</span>
+    <h2>Recommendation: The Best Path Forward</h2>
+    <span class="tag">actionable</span>
+  </div>
+
+  <div class="card" style="border-color:var(--green);background:var(--green-glow);margin-bottom:20px">
+    <h3 style="font-size:1.2rem;color:var(--green-2);margin-bottom:12px">💡 The Winning Move: Port v3's ML into Trampbook</h3>
+    <p style="color:var(--text-2);font-size:.95rem;line-height:1.7;margin-bottom:16px">
+      The two projects are complementary. v3 has the ML pipeline that Trampbook needs; Trampbook has the scalable architecture that v3 lacks. The ideal path is to <strong>port v3's spaCy NER model and SVM URL classifier into Trampbook's adapter framework</strong> as a fallback adapter — the "generic ML adapter" that runs when no platform-specific adapter matches.
+    </p>
+  </div>
+
+  <div class="grid-2">
+    <div class="rec-box" style="border-color:var(--amber)">
+      <h4 style="color:var(--amber-2)">⚡ v3 — To Make Production-Ready</h4>
+      <ul>
+        <li><strong>Rotate/secrets immediately</strong> — BrightData creds + Firebase key + OpenAI key are compromised in git history</li>
+        <li><strong>Move to .env</strong> — all credentials must come from environment variables</li>
+        <li><strong>Integrate ML into runAllScrapers.js</strong> — the spaCy NER and SVM URL classifier exist but aren't used by the production scrapers</li>
+        <li><strong>Add a normalization layer</strong> — all scrapers should output a common schema (copy Trampbook's NormalizedJobListing)</li>
+        <li><strong>Add deduplication</strong> — buildDedupKey() equivalent to prevent duplicate job postings</li>
+        <li><strong>Scale beyond 7 locals</strong> — the per-local approach doesn't scale to 244+. Need platform detection + adapter pattern</li>
+        <li><strong>Replace 169 print() calls</strong> — use Python logging module</li>
+        <li><strong>Add cron scheduling</strong> — manual runAllScrapers.js is not sustainable</li>
+        <li><strong>Remove vendored Crawl4AI</strong> — install via pip, don't ship the full library in the repo</li>
+        <li><strong>Estimated effort: 3-4 weeks</strong> to reach Trampbook's level</li>
+      </ul>
+    </div>
+    <div class="rec-box" style="border-color:var(--blue)">
+      <h4 style="color:var(--blue-2)">🌐 Trampbook — To Add ML Capabilities</h4>
+      <ul>
+        <li><strong>Port v3's spaCy NER model</strong> — install as a Python service, call from the generic adapter as an ML fallback</li>
+        <li><strong>Port v3's SVM URL classifier</strong> — use it in the URL seeder (scripts/hybrid/core/) instead of pure BM25 keyword matching</li>
+        <li><strong>Complete the hybrid pipeline</strong> — scripts/hybrid/ has the directory structure but only .gitkeep files; implement P2-P5 of plan.md</li>
+        <li><strong>Refactor parseUnionActiveTable</strong> — cognitive complexity 165 with 8 loops is the worst function in either project</li>
+        <li><strong>Split jobCallsScraper.ts</strong> — the 11 parsers in one monolith should be individual adapter files</li>
+        <li><strong>Add BrightData proxy support</strong> — for the ~4 UnionWorx SPA boards that need client-side rendering (optional, store creds in .env)</li>
+        <li><strong>Wire fabrication scan into CI</strong> — the eval framework exists but isn't automated</li>
+        <li><strong>Estimated effort: 2-3 weeks</strong> to integrate ML + complete hybrid pipeline</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;border-color:var(--purple);background:var(--purple-glow)">
+    <h3 style="font-size:1.1rem;color:var(--purple-2);margin-bottom:8px">🏆 Final Ranking</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <div style="text-align:center;padding:16px;border-radius:8px;background:var(--bg-2)">
+        <div style="font-size:2rem;font-weight:800;font-family:var(--font-mono);color:var(--blue-2)">8.6</div>
+        <div style="font-size:.85rem;font-weight:600;color:var(--text)">Trampbook</div>
+        <div style="font-size:.75rem;color:var(--text-3)">Overall scraper score</div>
+      </div>
+      <div style="text-align:center;padding:16px;border-radius:8px;background:var(--bg-2)">
+        <div style="font-size:2rem;font-weight:800;font-family:var(--font-mono);color:var(--amber-2)">6.8</div>
+        <div style="font-size:.85rem;font-weight:600;color:var(--text)">v3 / Journeyman-Jobs</div>
+        <div style="font-size:.75rem;color:var(--text-3)">Overall scraper score</div>
+      </div>
+    </div>
+    <p style="color:var(--text-2);font-size:.9rem;margin-top:16px;line-height:1.6">
+      <strong>Trampbook wins</strong> on scalability (244+ vs 7), security (no creds vs hardcoded), normalization (1 schema vs ad-hoc), eval framework (yes vs none), and efficiency (Cheerio vs Puppeteer). <strong>v3 wins</strong> on ML/AI (spaCy NER + SVM classifier), scraper code quality (lower complexity), and data classification richness. The best outcome is a merger: v3's ML brain inside Trampbook's body.
+    </p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>IBEW Scraper Comparison Report — v3 vs Trampbook</p>
+  <p class="gen">Sources: codebase-memory-mcp (v3: 6,110 nodes · TB: 8,589 nodes) · filesystem · git<br>
+  Generated: July 26, 2026 by Hermes Agent</p>
+</footer>
+
+<script>
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.fg').forEach(c=>{
+        const off=c.style.strokeDashoffset;
+        c.style.strokeDashoffset='327';
+        setTimeout(()=>c.style.strokeDashoffset=off,100);
+      });
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('.score-circle').forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>

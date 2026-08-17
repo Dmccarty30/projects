@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBEW Migration Blueprint: Cross-Project Consolidation Plan</title>
+<style>
+:root{
+  --bg:#0a0a0b;--bg-2:#121214;--bg-3:#1a1a1e;--bg-card:#151518;
+  --border:#2a2a30;--border-2:#3a3a42;
+  --text:#e8e8ea;--text-2:#a0a0a8;--text-3:#6a6a72;
+  --amber:#f59e0b;--amber-2:#fbbf24;--amber-glow:rgba(245,158,11,.15);
+  --blue:#3b82f6;--blue-2:#60a5fa;--blue-glow:rgba(59,130,246,.15);
+  --green:#22c55e;--green-2:#4ade80;--green-glow:rgba(34,197,94,.15);
+  --red:#ef4444;--red-2:#f87171;--red-glow:rgba(239,68,68,.15);
+  --purple:#a855f7;--purple-2:#c084fc;--purple-glow:rgba(168,85,247,.15);
+  --cyan:#06b6d4;--cyan-2:#22d3ee;--cyan-glow:rgba(6,182,212,.15);
+  --font-mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-2)}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+body::before{content:'';position:fixed;inset:0;z-index:-1;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;opacity:.12;pointer-events:none;
+  mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.container{max-width:1400px;margin:0 auto;padding:0 24px}
+
+.hero{padding:80px 0 60px;text-align:center;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--amber),var(--blue),transparent)}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--amber-2),var(--green-2),var(--blue-2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp .8s ease}
+.hero .sub{font-size:1.15rem;color:var(--text-2);max-width:750px;margin:0 auto 32px;animation:fadeUp .8s .1s ease both}
+.hero .meta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .2s ease both}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:600;
+  border:1px solid var(--border-2);background:var(--bg-card);color:var(--text-2)}
+.badge.amber{border-color:var(--amber);color:var(--amber-2);background:var(--amber-glow)}
+.badge.blue{border-color:var(--blue);color:var(--blue-2);background:var(--blue-glow)}
+.badge.green{border-color:var(--green);color:var(--green-2);background:var(--green-glow)}
+.badge.red{border-color:var(--red);color:var(--red-2);background:var(--red-glow)}
+.badge.purple{border-color:var(--purple);color:var(--purple-2);background:var(--purple-glow)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes grow{from{width:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+section{padding:48px 0;border-top:1px solid var(--border)}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.section-head .num{font-family:var(--font-mono);font-size:.8rem;color:var(--amber);font-weight:700;
+  padding:4px 10px;border:1px solid var(--amber);border-radius:6px;background:var(--amber-glow)}
+.section-head h2{font-size:1.8rem;font-weight:700;letter-spacing:-.01em}
+.section-head .tag{margin-left:auto;font-size:.75rem;color:var(--text-3);font-family:var(--font-mono)}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--border-2);transform:translateY(-2px)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* Direction banner */
+.dir-banner{display:flex;align-items:center;gap:16px;padding:20px 24px;border-radius:12px;border:2px solid;margin-bottom:24px}
+.dir-banner.tb-to-jj{border-color:var(--blue);background:linear-gradient(135deg,var(--blue-glow),transparent)}
+.dir-banner.jj-to-tb{border-color:var(--amber);background:linear-gradient(135deg,var(--amber-glow),transparent)}
+.dir-banner .arrow{font-size:2rem;font-weight:800;font-family:var(--font-mono)}
+.dir-banner h3{font-size:1.2rem;margin-bottom:2px}
+.dir-banner p{font-size:.85rem;color:var(--text-2)}
+
+/* Migration item */
+.mig-item{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;transition:border-color .2s}
+.mig-item:hover{border-color:var(--border-2)}
+.mig-item .head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.mig-item .head .ico{font-size:1.3rem;flex-shrink:0}
+.mig-item .head h4{font-size:1rem;flex:1}
+.mig-item .head .pri{font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em}
+.mig-item .head .pri.crit{background:var(--red-glow);color:var(--red-2);border:1px solid var(--red)}
+.mig-item .head .pri.high{background:var(--amber-glow);color:var(--amber-2);border:1px solid var(--amber)}
+.mig-item .head .pri.med{background:var(--blue-glow);color:var(--blue-2);border:1px solid var(--blue)}
+.mig-item .head .pri.low{background:var(--bg-3);color:var(--text-3);border:1px solid var(--border)}
+.mig-item .body{font-size:.85rem;color:var(--text-2);line-height:1.7}
+.mig-item .body strong{color:var(--text)}
+.mig-item .body code{font-family:var(--font-mono);font-size:.8rem;background:var(--bg-3);padding:1px 5px;border-radius:3px;color:var(--green-2)}
+.mig-item .steps{margin-top:12px;padding-left:0;list-style:none}
+.mig-item .steps li{padding:4px 0;font-size:.82rem;color:var(--text-2);display:flex;gap:8px}
+.mig-item .steps li .n{font-family:var(--font-mono);color:var(--amber);font-weight:700;flex-shrink:0;width:20px}
+.mig-item .files{margin-top:10px;padding:10px;border-radius:6px;background:var(--bg-2);border:1px solid var(--border)}
+.mig-item .files .lbl{font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.mig-item .files .path{font-family:var(--font-mono);font-size:.78rem;color:var(--cyan-2);word-break:break-all}
+
+/* Timeline */
+.phase{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+.phase .marker{flex-shrink:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;font-size:.9rem;border:2px solid}
+.phase.p1 .marker{border-color:var(--red);color:var(--red-2);background:var(--red-glow)}
+.phase.p2 .marker{border-color:var(--amber);color:var(--amber-2);background:var(--amber-glow)}
+.phase.p3 .marker{border-color:var(--blue);color:var(--blue-2);background:var(--blue-glow)}
+.phase.p4 .marker{border-color:var(--green);color:var(--green-2);background:var(--green-glow)}
+.phase .content{flex:1}
+.phase .content h4{font-size:1rem;margin-bottom:4px}
+.phase .content .dur{font-size:.75rem;color:var(--text-3);font-family:var(--font-mono);margin-bottom:8px}
+.phase .content p{font-size:.85rem;color:var(--text-2)}
+
+/* Remaining checklist */
+.checklist{list-style:none;padding:0}
+.checklist li{padding:8px 0;font-size:.85rem;color:var(--text-2);display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
+.checklist li:last-child{border-bottom:none}
+.checklist li .box{flex-shrink:0;width:16px;height:16px;border:2px solid var(--border-2);border-radius:3px;margin-top:2px}
+.checklist li .box.done{background:var(--green);border-color:var(--green)}
+.checklist li .box.todo{background:transparent;border-color:var(--amber)}
+.checklist li .txt{flex:1}
+.checklist li .txt strong{color:var(--text)}
+.checklist li .tag{font-size:.65rem;padding:2px 6px;border-radius:3px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+.checklist li .tag.crit{background:var(--red-glow);color:var(--red-2)}
+.checklist li .tag.high{background:var(--amber-glow);color:var(--amber-2)}
+.checklist li .tag.med{background:var(--blue-glow);color:var(--blue-2)}
+.checklist li .tag.low{background:var(--bg-3);color:var(--text-3)}
+
+/* Warning callout */
+.warn-box{padding:16px;border-radius:8px;border:1px solid var(--red);background:var(--red-glow);margin:16px 0}
+.warn-box .title{color:var(--red-2);font-weight:700;font-size:.9rem;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.warn-box p{font-size:.85rem;color:var(--text-2)}
+
+.info-box{padding:16px;border-radius:8px;border:1px solid var(--blue);background:var(--blue-glow);margin:16px 0}
+.info-box .title{color:var(--blue-2);font-weight:700;font-size:.9rem;margin-bottom:6px}
+.info-box p{font-size:.85rem;color:var(--text-2)}
+
+.good-box{padding:16px;border-radius:8px;border:1px solid var(--green);background:var(--green-glow);margin:16px 0}
+.good-box .title{color:var(--green-2);font-weight:700;font-size:.9rem;margin-bottom:6px}
+.good-box p{font-size:.85rem;color:var(--text-2)}
+
+/* Architecture diagram */
+.arch-diagram{font-family:var(--font-mono);font-size:.72rem;color:var(--text-3);line-height:1.6;background:var(--bg-2);padding:20px;border-radius:8px;border:1px solid var(--border);overflow-x:auto;white-space:pre}
+.arch-diagram .hl{color:var(--green-2)}
+.arch-diagram .del{color:var(--red-2);text-decoration:line-through;opacity:.6}
+.arch-diagram .new{color:var(--blue-2)}
+.arch-diagram .move{color:var(--amber-2)}
+
+/* Summary stat */
+.sum-stat{display:flex;align-items:center;gap:12px;padding:16px;border-radius:8px;background:var(--bg-2);border:1px solid var(--border)}
+.sum-stat .num{font-size:2rem;font-weight:800;font-family:var(--font-mono)}
+.sum-stat .lbl{font-size:.8rem;color:var(--text-3)}
+.sum-stat .num.amber{color:var(--amber-2)}
+.sum-stat .num.blue{color:var(--blue-2)}
+.sum-stat .num.green{color:var(--green-2)}
+.sum-stat .num.red{color:var(--red-2)}
+
+footer{padding:48px 0;text-align:center;color:var(--text-3);font-size:.8rem;border-top:1px solid var(--border)}
+footer .gen{font-family:var(--font-mono);margin-top:8px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 20px;font-size:.85rem;font-weight:600;color:var(--text-3);cursor:pointer;
+  border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;transition:all .2s;background:none}
+.tab:hover{color:var(--text-2);background:var(--bg-2)}
+.tab.active{color:var(--amber);border-color:var(--border);border-bottom-color:var(--bg);background:var(--bg-card)}
+.tab-content{display:none;animation:fadeIn .3s}
+.tab-content.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="hero">
+  <h1>IBEW Migration Blueprint</h1>
+  <p class="sub">A strict, technical, critical plan for cross-pollinating <strong style="color:var(--amber-2)">Journeyman-Jobs</strong> (Flutter + v3 scrapers) and <strong style="color:var(--blue-2)">Trampbook</strong> (React PWA + adapters) into production-ready systems. Every migration item includes source paths, target paths, and step-by-step implementation.</p>
+  <div class="meta">
+    <span class="badge amber">⚡ Journeyman-Jobs</span>
+    <span class="badge blue">🌐 Trampbook</span>
+    <span class="badge green">📋 Migration Plan</span>
+    <span class="badge red">🔥 Critical Path</span>
+    <span class="badge purple">📅 July 26, 2026</span>
+  </div>
+</div>
+
+<!-- SECTION 0: Executive Summary -->
+<section id="exec">
+  <div class="section-head">
+    <span class="num">00</span>
+    <h2>Executive Summary & Decision Framework</h2>
+    <span class="tag">synthesis of both prior reports</span>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="sum-stat"><div class="num blue">12</div><div class="lbl">items to migrate<br>Trampbook → Journeyman-Jobs</div></div>
+    <div class="sum-stat"><div class="num amber">7</div><div class="lbl">items to migrate<br>Journeyman-Jobs → Trampbook</div></div>
+  </div>
+  <div class="grid-3" style="margin-bottom:24px">
+    <div class="sum-stat"><div class="num red">3</div><div class="lbl">CRITICAL items<br>(blocks production)</div></div>
+    <div class="sum-stat"><div class="num amber">8</div><div class="lbl">HIGH priority items<br>(should do before launch)</div></div>
+    <div class="sum-stat"><div class="num green">8</div><div class="lbl">MEDIUM/LOW items<br>(post-launch polish)</div></div>
+  </div>
+
+  <div class="warn-box">
+    <div class="title">🔴 CRITICAL: Do Not Run Both Projects in Parallel</div>
+    <p>Running two separate scrapers against the same IBEW local union websites risks IP bans, duplicate data, and wasted proxy costs. Pick ONE project as the production system and migrate the other's assets into it. This report assumes you will decide which project goes to production based on the migration outcome — but the critical path items below must be done regardless of which one you choose.</p>
+  </div>
+
+  <div class="good-box">
+    <div class="title">✅ The Two Projects Are Complementary</div>
+    <p>Journeyman-Jobs has the better <strong>mobile app</strong> (Flutter, native, offline, design system) and the better <strong>ML pipeline</strong> (spaCy NER, SVM URL classifier). Trampbook has the better <strong>backend</strong> (tRPC, Drizzle, MySQL, 10 migrations), better <strong>scraper architecture</strong> (adapter pattern, 244+ locals, eval framework), and better <strong>AI/RAG</strong> system. The migration plan below moves each strength to the project that needs it.</p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3 style="font-size:1.1rem;margin-bottom:12px">Target Architecture After Migration</h3>
+    <div class="arch-diagram"><span class="hl">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="hl">│                    PRODUCTION SYSTEM (pick one)                      │</span>
+<span class="hl">├─────────────────────────────────────────────────────────────────────┤</span>
+<span class="hl">│                                                                       │</span>
+<span class="hl">│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐  │</span>
+<span class="hl">│  │  MOBILE APP  │    │  WEB PWA     │    │  SCRAPER PIPELINE    │  │</span>
+<span class="hl">│  │  (Flutter)   │    │  (React 19)  │    │                      │  │</span>
+<span class="hl">│  │              │    │              │    │  ┌─────────────────┐ │  │</span>
+<span class="hl">│  │  From JJ:    │    │  From TB:    │    │  │ Platform Adapters│ │  │</span>
+<span class="hl">│  │  - Features  │    │  - 16 pages  │    │  │ (from TB)        │ │  │</span>
+<span class="hl">│  │  - Design sys│    │  - Radix UI  │    │  │ - UnionActive     │ │  │</span>
+<span class="hl">│  │  - Storm     │    │  - PWA/SW    │    │  │ - WorkingSystems  │ │  │</span>
+<span class="hl">│  │  - Crews     │    │  - Chat AI   │    │  │ - WSI JobRef      │ │  │</span>
+<span class="hl">│  │  - Auth      │    │              │    │  │ - Generic         │ │  │</span>
+<span class="hl">│  │              │    │  From JJ:    │    │  └─────────────────┘ │  │</span>
+<span class="hl">│  │  From TB:    │    │  - ML NER    │    │                      │  │</span>
+<span class="hl">│  │  - RAG search│    │    fallback  │    │  ┌─────────────────┐ │  │</span>
+<span class="hl">│  │  - AI chat   │    │              │    │  │ ML Fallback (JJ) │ │  │</span>
+<span class="hl">│  │  - Notif     │    │              │    │  │ - spaCy NER      │ │  │</span>
+<span class="hl">│  └──────┬───────┘    └──────┬───────┘    │  │ - SVM URL class  │ │  │</span>
+<span class="hl">│         │                   │             │  └─────────────────┘ │  │</span>
+<span class="hl">│         └───────┬───────────┘             │                      │  │</span>
+<span class="hl">│                 │                         │  ┌─────────────────┐ │  │</span>
+<span class="hl">│         ┌───────▼───────┐                 │  │ Eval Framework  │ │  │</span>
+<span class="hl">│         │  API GATEWAY   │                 │  │ (from TB)       │ │  │</span>
+<span class="hl">│         │  tRPC (from TB)│                 │  │ - Gold standard  │ │  │</span>
+<span class="hl">│         │  43 typed routes│                │  │ - Bake-off       │ │  │</span>
+<span class="hl">│         └───────┬───────┘                 │  │ - Fab scan       │ │  │</span>
+<span class="hl">│                 │                         │  └────────┬────────┘ │  │</span>
+<span class="hl">│         ┌───────▼───────┐                 │           │          │  │</span>
+<span class="hl">│         │  DATABASE      │◄────────────────┼───────────┘          │  │</span>
+<span class="hl">│         │  MySQL+Drizzle │                │                      │  │</span>
+<span class="hl">│         │  (from TB)     │                │  ┌─────────────────┐ │  │</span>
+<span class="hl">│         │  10 migrations │                │  │ Cron Scheduler  │ │  │</span>
+<span class="hl">│         └───────┬───────┘                 │  │ (from TB)       │ │  │</span>
+<span class="hl">│                 │                         │  │ - jobCallsSched  │ │  │</span>
+<span class="hl">│         ┌───────▼───────┐                 │  │ - Notifier       │ │  │</span>
+<span class="hl">│         │  NOTIFICATIONS │                 │  │ - SMS + Email    │ │  │</span>
+<span class="hl">│         │  Push+SMS+Email│                │  └─────────────────┘ │  │</span>
+<span class="hl">│         │  (from TB)     │                │                      │  │</span>
+<span class="hl">│         └───────────────┘                 └──────────────────────┘  │</span>
+<span class="hl">└─────────────────────────────────────────────────────────────────────┘</span></div>
+  </div>
+</section>
+
+<!-- SECTION 1: Trampbook → Journeyman-Jobs -->
+<section id="tb-to-jj">
+  <div class="section-head">
+    <span class="num">01</span>
+    <h2>Migration A: Trampbook → Journeyman-Jobs</h2>
+    <span class="tag">12 items · 3 critical · 5 high</span>
+  </div>
+  <div class="dir-banner tb-to-jj">
+    <span class="arrow">🌐 → ⚡</span>
+    <div>
+      <h3 style="color:var(--blue-2)">From Trampbook to Journeyman-Jobs</h3>
+      <p>Move Trampbook's backend, scraper architecture, normalization, and notification stack into the Journeyman-Jobs Flutter app ecosystem.</p>
+    </div>
+  </div>
+
+  <!-- Item 1 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🔐</span><h4>tRPC API Gateway + Express Server</h4><span class="pri crit">CRITICAL</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs has <strong>no backend server</strong> — it depends entirely on Firebase SDK calls from the Flutter client. This is the single biggest blocker to production. Trampbook has a full Express + tRPC server with 43 typed routes, end-to-end type safety, and JWT auth.
+      <br><br>
+      <strong>What to migrate:</strong>
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/_core/index.ts</code> (Express bootstrap) and <code>server/_core/</code> directory to a new <code>server/</code> directory in Journeyman-Jobs</li>
+        <li><span class="n">2</span>Copy <code>server/context.ts</code> (tRPC context with auth middleware)</li>
+        <li><span class="n">3</span>Copy <code>server/routers.ts</code> — but <strong>split it first</strong> (it's 1377 lines). Break into: <code>auth.router.ts</code>, <code>jobs.router.ts</code>, <code>locals.router.ts</code>, <code>notifications.router.ts</code>, <code>admin.router.ts</code></li>
+        <li><span class="n">4</span>Replace Firebase Auth calls in Flutter with tRPC API calls (keep Firebase Auth as the auth provider, but route data through tRPC)</li>
+        <li><span class="n">5</span>Generate tRPC client types and use in Flutter via <code>tRPC Dart</code> package or a generated REST layer</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (Trampbook)</div>
+        <div class="path">server/_core/index.ts · server/context.ts · server/routers.ts</div>
+        <div class="lbl">Target (Journeyman-Jobs)</div>
+        <div class="path">journeyman-jobs/server/ (new directory)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 2 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🗄️</span><h4>Drizzle ORM + MySQL Schema (10 Migrations)</h4><span class="pri crit">CRITICAL</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs uses Firestore (NoSQL, schemaless). This works for prototyping but fails for production scraping — you need relational integrity, migrations, and queryable job postings. Trampbook has a versioned Drizzle schema with 10 migrations.
+      <br><br>
+      <strong>What to migrate:</strong>
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>drizzle/schema.ts</code> — defines <code>users</code>, <code>locals</code>, <code>jobPostings</code>, <code>scrapeResults</code>, <code>contractors</code>, <code>pushSubscriptions</code>, <code>notifications</code>, <code>userProfiles</code>, <code>jobCallApplications</code>, <code>userBookSignings</code>, <code>onboardingForms</code>, <code>formTemplates</code>, <code>conversations</code>, <code>chatMessages</code>, <code>apiKeys</code></li>
+        <li><span class="n">2</span>Copy <code>drizzle/relations.ts</code> (foreign key relationships)</li>
+        <li><span class="n">3</span>Copy all 10 migration SQL files: <code>drizzle/0000_curvy_riptide.sql</code> through <code>drizzle/0009_normalize_job_postings.sql</code></li>
+        <li><span class="n">4</span>Copy <code>drizzle.config.ts</code> and update the database URL</li>
+        <li><span class="n">5</span>Run <code>drizzle-kit migrate</code> against a fresh MySQL instance</li>
+        <li><span class="n">6</span>Write a one-time Firestore → MySQL data migration script for any existing JJ data</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">drizzle/schema.ts · drizzle/relations.ts · drizzle/0000-0009*.sql · drizzle.config.ts</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/db/ (new directory)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 3 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🕷️</span><h4>Scraper Adapter Framework (6 Platform Adapters)</h4><span class="pri crit">CRITICAL</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs/v3 has 7 handwritten per-local scrapers. Trampbook has a platform-class adapter pattern covering 244+ locals. This is the difference between "add 1 file per new local" and "add 1 adapter per new platform."
+      <br><br>
+      <strong>What to migrate:</strong>
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>scrapers/base.ts</code> — the <code>BoardAdapter</code> interface that all adapters implement</li>
+        <li><span class="n">2</span>Copy all 6 adapters: <code>unionactive.ts</code>, <code>workingsystems.ts</code>, <code>wsijobref.ts</code>, <code>unionworx.ts</code>, <code>generic.ts</code>, and the custom_table parser from <code>jobCallsScraper.ts</code></li>
+        <li><span class="n">3</span>Copy <code>scrapers/catalog.ts</code> — the 244+ board catalog with local numbers, URLs, and platform types</li>
+        <li><span class="n">4</span>Copy <code>scrapers/utils.ts</code> — <code>fetchWithRetry()</code>, <code>isAuthWalled()</code>, <code>USER_AGENT</code></li>
+        <li><span class="n">5</span>Copy <code>scrapers/output.ts</code> — result aggregation</li>
+        <li><span class="n">6</span>Copy <code>server/jobCallsScraper.ts</code> — but <strong>refactor <code>parseUnionActiveTable</code> first</strong> (cognitive complexity 165, 8 loops). Split into <code>parseUnionActiveRows()</code>, <code>parseUnionActiveDetails()</code>, <code>normalizeUnionActiveJob()</code></li>
+        <li><span class="n">7</span>Copy <code>shared/jobListingSchema.ts</code> — the <code>NormalizedJobListing</code> type with <code>buildDedupKey()</code> and empty-string convention</li>
+        <li><span class="n">8</span>Wire the adapters to write to the new Drizzle/MySQL database instead of Firestore</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">scrapers/*.ts · scrapers/adapters/*.ts · server/jobCallsScraper.ts · shared/jobListingSchema.ts</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/scrapers/ (new directory)</div>
+      </div>
+      <div class="warn-box" style="margin-top:12px">
+        <div class="title">⚠️ Do NOT copy jobCrud.js</div>
+        <p>v3's <code>completed/jobCrud.js</code> writes to Firestore with hardcoded credentials. Replace it entirely with Drizzle ORM calls. The <code>sanitizeString()</code> and <code>generateJobId()</code> utilities should be rewritten as <code>buildDedupKey()</code> from Trampbook's schema.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 4 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">⏰</span><h4>Cron Scheduler + Notification Stack</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      v3 uses <code>runAllScrapers.js</code> — a manual sequential runner. Trampbook has an automated cron scheduler with push, SMS, and email notifications after each scrape.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/jobCallsScheduler.ts</code> — twice-daily cron, per-local status tracking, <code>getLastScrapeRun()</code>, <code>getLocalsWithJobBoards()</code></li>
+        <li><span class="n">2</span>Copy <code>server/jobCallsNotifier.ts</code> — <code>getUserNotifications()</code>, <code>markAllAsRead()</code>, push subscription management</li>
+        <li><span class="n">3</span>Copy <code>server/webPush.ts</code> — Web Push API integration</li>
+        <li><span class="n">4</span>Copy <code>server/smsGateway.ts</code> — Twilio SMS with carrier detection</li>
+        <li><span class="n">5</span>Copy <code>server/emailService.ts</code> — Nodemailer + Resend transactional email</li>
+        <li><span class="n">6</span>For the Flutter app: replace <code>firebase_messaging</code> with the new push notification API, OR keep FCM and have the server send to FCM tokens stored in MySQL</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">server/jobCallsScheduler.ts · server/jobCallsNotifier.ts · server/webPush.ts · server/smsGateway.ts · server/emailService.ts</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/services/ (new directory)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 5 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">📊</span><h4>Evaluation Framework (Gold Standard + Bake-Off)</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      Neither v3 nor Journeyman-Jobs has any way to measure scraper accuracy. Trampbook has a full eval framework — 28-board gold set, criteria hash, baseline harness, comparison tools, and a fabrication scanner.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy the entire <code>eval/</code> directory (21 files across gold/, tools/, and baseline runs)</li>
+        <li><span class="n">2</span>Copy <code>eval/tools/compute_criteria_hash.py</code> — freezes the evaluation criteria</li>
+        <li><span class="n">3</span>Copy <code>eval/gold/manifest.json</code> — the 28-board stratified gold set</li>
+        <li><span class="n">4</span>Copy <code>eval/tools/compare_eval.py</code> — baseline vs. hybrid comparison</li>
+        <li><span class="n">5</span>Copy <code>eval/tools/fabrication_scan.py</code> — detects hallucinated job data</li>
+        <li><span class="n">6</span>Run the eval against v3's 7 existing scrapers to get a baseline accuracy score</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">eval/ (entire directory)</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/eval/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 6 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🤖</span><h4>RAG System + Dual-Backend AI</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs has <code>google_generative_ai</code> for basic AI chat, but no RAG (retrieval-augmented generation). Trampbook has a full RAG system with document embeddings, chunking, cosine similarity, and context injection from locals + job calls.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/ragSystem.ts</code> — <code>addDocument()</code>, <code>chunkText()</code>, <code>cosineSimilarity()</code>, <code>generateEmbedding()</code></li>
+        <li><span class="n">2</span>Copy <code>server/aiDualBackend.ts</code> — <code>aiChat()</code>, <code>aiChatStream()</code>, <code>aiGenerate()</code> with cloud + local backends</li>
+        <li><span class="n">3</span>Copy <code>server/aiContext.ts</code> — <code>buildAIContext()</code> that injects locals + job calls into AI prompts</li>
+        <li><span class="n">4</span>Copy <code>server/agent/</code> directory — the action engine with tool execution (<code>executeToolCall()</code>, <code>executeToolChain()</code>)</li>
+        <li><span class="n">5</span>For Flutter: replace the direct <code>google_generative_ai</code> calls with tRPC API calls to the new AI endpoints</li>
+        <li><span class="n">6</span>Run the RAG loaders (<code>ragFullLoader.ts</code>) to seed the embedding database from locals + job postings</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">server/ragSystem.ts · server/aiDualBackend.ts · server/aiContext.ts · server/agent/</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/ai/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 7 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">📜</span><h4>CBA/Wage Sheet OCR Pipeline</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      Trampbook has a complete pipeline for downloading CBA PDFs and wage sheet images, running OCR (Tesseract + pdftotext), structuring with LLM (Ollama), and uploading to RAG. Journeyman-Jobs has nothing equivalent.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>run-wage-ocr.mjs</code> — the full OCR pipeline (download → OCR → LLM structure → RAG upload)</li>
+        <li><span class="n">2</span>Copy <code>scrapeCBAPDFs.mjs</code> — CBA PDF discovery and download</li>
+        <li><span class="n">3</span>Copy <code>resume-cba-upload.mjs</code> and <code>download-cbas-rag.mjs</code> — RAG ingestion scripts</li>
+        <li><span class="n">4</span>Copy <code>scripts/hybrid/core/</code> and <code>scripts/hybrid/profiles/</code> — the scaffolded hybrid pipeline (currently .gitkeep only — needs implementation)</li>
+        <li><span class="n">5</span>Copy <code>wage-sheets-urls.json</code> and <code>cba-download-urls.json</code> — the URL lists for known wage sheets and CBAs</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">run-wage-ocr.mjs · scrapeCBAPDFs.mjs · resume-cba-upload.mjs · download-cbas-rag.mjs · scripts/hybrid/ · wage-sheets-urls.json</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/ocr/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 8 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">📋</span><h4>NormalizedJobListing Schema + Dedup Key</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      v3's scrapers each output different JSON shapes — Local 111 returns <code>{company, datePosted, jobClass, numberOfJobs}</code>, Local 125 returns <code>{job_listings, metadata}</code>, Local 226 returns GPT-4 extracted objects. Trampbook solved this with a single <code>NormalizedJobListing</code> type.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>shared/jobListingSchema.ts</code> — the <code>NormalizedJobListing</code> interface with 20+ typed fields</li>
+        <li><span class="n">2</span>Adopt the empty-string convention: missing text = <code>""</code>, missing numbers = <code>0</code>, missing booleans = <code>false</code> (never <code>null</code> or <code>"N/A"</code>)</li>
+        <li><span class="n">3</span>Adopt <code>buildDedupKey()</code> — generates a unique key from localNumber + contractor + classification + location</li>
+        <li><span class="n">4</span>Adopt Eastern TZ ISO-8601 timestamp convention for all <code>scrapedAt</code> fields</li>
+        <li><span class="n">5</span>Rewrite v3's 7 scrapers to output <code>NormalizedJobListing[]</code> instead of their current ad-hoc shapes</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">shared/jobListingSchema.ts · shared/jobListingSchema.test.ts</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/shared/jobListingSchema.ts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 9 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🏗️</span><h4>Auth Service (JWT + bcrypt + Invite Codes)</h4><span class="pri med">MEDIUM</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs uses Firebase Auth (which is fine), but the server-side auth for tRPC needs to be migrated. Trampbook's <code>authService.ts</code> handles JWT creation, cookie-based session, invite codes, and role-based access.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/authService.ts</code> — but <strong>refactor <code>registerAuthRoutes</code></strong> first (cyclomatic complexity 64). Split into per-route handler functions</li>
+        <li><span class="n">2</span>Keep Firebase Auth on the Flutter side — it generates a Firebase ID token</li>
+        <li><span class="n">3</span>Add a server endpoint that exchanges Firebase ID token for a JWT session token</li>
+        <li><span class="n">4</span>Copy <code>server/auth.logout.test.ts</code>, <code>server/authService.ts</code> tests</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">server/authService.ts · server/auth.logout.test.ts</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/auth/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 10 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🔄</span><h4>Job Call Automation (Auto-Apply)</h4><span class="pri med">MEDIUM</span>
+    </div>
+    <div class="body">
+      Trampbook has a job call automation system — users can set preferences and the system auto-applies to job calls on their behalf. Journeyman-Jobs has no equivalent.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/jobCallAutomation.ts</code> — <code>applyToCall()</code>, <code>approveApplication()</code>, <code>declineApplication()</code>, <code>getPreferences()</code></li>
+        <li><span class="n">2</span>Copy the <code>jobCallApplications</code> and <code>jobCallPreferences</code> table schemas from Drizzle</li>
+        <li><span class="n">3</span>Add a Flutter UI for preference management (JJ already has a settings screen framework)</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">server/jobCallAutomation.ts · drizzle/schema.ts (jobCallApplications, jobCallPreferences tables)</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/automation/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 11 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">📚</span><h4>Book Sign Approval System</h4><span class="pri med">MEDIUM</span>
+    </div>
+    <div class="body">
+      Trampbook has an email-based book signing approval workflow — users submit book sign requests, the system composes confirmation emails, generates approval tokens, and processes approvals.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/bookSignApproval.ts</code> — <code>approveBookSign()</code>, <code>composeBookSignEmail()</code>, <code>generateApprovalToken()</code></li>
+        <li><span class="n">2</span>Copy the <code>userBookSignings</code> table schema from Drizzle</li>
+        <li><span class="n">3</span>Add Flutter UI for book sign request submission</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">server/bookSignApproval.ts</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/booksign/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 12 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🗺️</span><h4>Storm Monitor + Contractor Onboarding</h4><span class="pri low">LOW</span>
+    </div>
+    <div class="body">
+      Trampbook has a storm monitoring system that tracks storm restoration companies and sends alerts. Journeyman-Jobs already has a storm feature, but Trampbook's is more complete. Trampbook also has a contractor onboarding flow.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>server/stormMonitor.ts</code> — <code>sendStormAlertEmail()</code>, <code>checkPage()</code>, <code>forceStormCheck()</code></li>
+        <li><span class="n">2</span>Copy the <code>contractors</code> table schema and <code>drizzle/0007_contractor_onboarding.sql</code></li>
+        <li><span class="n">3</span>Merge with Journeyman-Jobs' existing <code>lib/features/storm/</code> widgets</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source</div>
+        <div class="path">server/stormMonitor.ts · drizzle/0007_contractor_onboarding.sql</div>
+        <div class="lbl">Target</div>
+        <div class="path">journeyman-jobs/server/storm/</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: Journeyman-Jobs → Trampbook -->
+<section id="jj-to-tb">
+  <div class="section-head">
+    <span class="num">02</span>
+    <h2>Migration B: Journeyman-Jobs → Trampbook</h2>
+    <span class="tag">7 items · 2 critical · 3 high</span>
+  </div>
+  <div class="dir-banner jj-to-tb">
+    <span class="arrow">⚡ → 🌐</span>
+    <div>
+      <h3 style="color:var(--amber-2)">From Journeyman-Jobs to Trampbook</h3>
+      <p>Move JJ's ML pipeline, design system, native mobile advantages, and agent infrastructure into Trampbook's web ecosystem.</p>
+    </div>
+  </div>
+
+  <!-- Item 1 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🧠</span><h4>ML Pipeline: spaCy NER Model + SVM URL Classifier</h4><span class="pri crit">CRITICAL</span>
+    </div>
+    <div class="body">
+      This is Journeyman-Jobs/v3's unique advantage. The spaCy NER model can extract 30+ job fields (company, wage, classification, hours, etc.) from <strong>any</strong> raw HTML text — no platform-specific parser needed. The SVM URL classifier categorizes crawled URLs into semantic categories. Trampbook has neither.
+      <br><br>
+      <strong>What to migrate:</strong>
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>machine_learning/ml_webcrawler/scripts/scraper.py</code> — the spaCy NER extractor. It loads the model and maps entities (COMPANY, DATE_POSTED, CLASSIFICATION, WAGE, etc.) to structured fields</li>
+        <li><span class="n">2</span>Copy <code>machine_learning/ml_webcrawler/models/spacy_model/</code> — the trained spaCy model directory (config.cfg, ner/model, parser/model, tagger/model, vocab/)</li>
+        <li><span class="n">3</span>Copy <code>machine_learning/ml_webcrawler/models/nlp.model.joblib</code> — the scikit-learn classifier</li>
+        <li><span class="n">4</span>Copy <code>machine_learning/ml_url_identifier/model_training.py</code> — the SVM URL classifier trainer (spaCy vectors → SVC)</li>
+        <li><span class="n">5</span>Copy <code>machine_learning/ml_url_identifier/models/url_classifier.joblib</code> — the trained URL classifier</li>
+        <li><span class="n">6</span>Copy <code>machine_learning/ml_url_identifier/data/labeled_data.json</code> — the labeled training data</li>
+        <li><span class="n">7</span>Copy <code>machine_learning/ml_webcrawler/data_pipeline.py</code> — the Pydantic validation + train/test split pipeline</li>
+        <li><span class="n">8</span>Wire the NER model as a <strong>fallback adapter</strong> in Trampbook's adapter framework: when <code>generic.ts</code> can't extract structured data, call the Python NER service</li>
+        <li><span class="n">9</span>Wire the URL classifier into <code>scripts/hybrid/core/url_seeder.py</code> — replace or augment BM25 keyword scoring with ML-based classification</li>
+        <li><span class="n">10</span>Deploy the Python ML service as a sidecar (Flask/FastAPI) that the Node.js server calls via HTTP</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (v3)</div>
+        <div class="path">machine_learning/ (entire directory)</div>
+        <div class="lbl">Target (Trampbook)</div>
+        <div class="path">trampbook/ml/ (new directory) · trampbook/scrapers/adapters/ml_fallback.py (new)</div>
+      </div>
+      <div class="info-box" style="margin-top:12px">
+        <div class="title">📦 Dependencies to install</div>
+        <p><code>spacy</code>, <code>scikit-learn</code>, <code>joblib</code>, <code>pydantic</code>, <code>pandas</code>, <code>fastapi</code> or <code>flask</code> (for the ML service). Already in <code>machine_learning/requirements.txt</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 2 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🎨</span><h4>Design System (Electrical Circuit Theme)</h4><span class="pri crit">CRITICAL</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs has 970 graph nodes dedicated to its design system — electrical circuit backgrounds, themed components (JJPrimaryButton, JJTextField, JJSnackBar), custom painters, and a 10-phase redesign plan. Trampbook uses generic shadcn/Radix components with a dark theme. The electrical aesthetic is JJ's brand identity.
+      <br><br>
+      <strong>What to migrate (for Trampbook as PWA):</strong>
+      <ul class="steps">
+        <li><span class="n">1</span>Port the <code>ElectricalCircuitBackground</code> concept to CSS/Canvas — Trampbook is a web app, so this becomes a CSS animated background or a JS canvas component</li>
+        <li><span class="n">2</span>Copy the color palette from <code>lib/design_system/</code> — the amber-on-black electrical theme (<code>#f59e0b</code> on <code>#0a0a0b</code>)</li>
+        <li><span class="n">3</span>Port <code>JJPrimaryButton</code>, <code>JJTextField</code>, <code>JJSnackBar</code> styling to Radix/shadcn component variants</li>
+        <li><span class="n">4</span>Copy the <code>AppTheme</code> and <code>TailboardTheme</code> configuration as CSS custom properties</li>
+        <li><span class="n">5</span>Port the circuit trace animation to CSS <code>@keyframes</code> or a lightweight JS canvas</li>
+        <li><span class="n">6</span>Reference <code>implementation-plan.md</code> for the 10-phase redesign (Version A iterated, Version B clean slate)</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (JJ)</div>
+        <div class="path">lib/design_system/ (970 nodes) · lib/design_system/electrical/ · implementation-plan.md</div>
+        <div class="lbl">Target (TB)</div>
+        <div class="path">trampbook/client/src/styles/electrical-theme.css · trampbook/client/src/components/ElectricalBackground.tsx</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 3 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🤖</span><h4>Agent Infrastructure (51 Skills + Rules)</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      Journeyman-Jobs has the richest AI-assisted development setup of either project: 51 agent skills in <code>.agent/skills/</code>, .roo rules for Firebase backend/error-correction/brainstorm agents, .clinerules for MCP/critical thinking/features, and a Conductor workflow system. Trampbook has only an <code>AGENTS.md</code> file.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>.agent/skills/</code> — all 51 skills (architecture, app-builder, clean-code, database-design, debugging, deployment, frontend-design, mobile-design, etc.)</li>
+        <li><span class="n">2</span>Copy <code>.roo/rules-firebase-backend/</code> — Firebase-specific agent rules (if keeping Firebase for auth)</li>
+        <li><span class="n">3</span>Copy <code>.clinerules/</code> — MCP, critical thinking, features, team-fullstack rules</li>
+        <li><span class="n">4</span>Copy <code>conductor/</code> — code styleguides, tech-stack, workflow, tracks</li>
+        <li><span class="n">5</span>Adapt <code>.roo/rules-firebase-backend</code> → <code>.roo/rules-drizzle-backend</code> since Trampbook uses Drizzle not Firebase</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (JJ)</div>
+        <div class="path">.agent/ · .roo/ · .clinerules/ · conductor/</div>
+        <div class="lbl">Target (TB)</div>
+        <div class="path">trampbook/.agent/ · trampbook/.roo/ · trampbook/.clinerules/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 4 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">📱</span><h4>Native Mobile Features (Biometrics, FCM, Map, Offline)</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      If the target is a native mobile app (not just PWA), Journeyman-Jobs' Flutter implementation has native capabilities that Trampbook's PWA can't match.
+      <ul class="steps">
+        <li><span class="n">1</span>If building a Flutter client for Trampbook's backend: copy <code>lib/features/</code> entirely (auth, jobs, crews, storm, settings, onboarding, navigation)</li>
+        <li><span class="n">2</span>Copy <code>lib/core/services/</code> — <code>FirestoreService</code> (replace with tRPC API client), <code>SettingsService</code>, <code>SearchOptimizedFirestoreService</code></li>
+        <li><span class="n">3</span>Copy biometric auth: <code>lib/features/auth/</code> with <code>local_auth</code> package</li>
+        <li><span class="n">4</span>Copy <code>flutter_map</code> + <code>geolocator</code> integration for native map rendering (Trampbook uses Google Maps JS)</li>
+        <li><span class="n">5</span>Copy <code>connectivity_plus</code> offline detection and caching strategy</li>
+        <li><span class="n">6</span>Replace all Firestore SDK calls with tRPC API calls to the new backend</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (JJ)</div>
+        <div class="path">lib/features/ · lib/core/services/ · lib/features/auth/</div>
+        <div class="lbl">Target</div>
+        <div class="path">If Flutter-on-Trampbook: new mobile/ directory in trampbook repo</div>
+      </div>
+      <div class="info-box" style="margin-top:12px">
+        <div class="title">💡 Decision Point</div>
+        <p>If Trampbook stays as PWA-only, skip this item. The PWA already has offline caching via service worker. But if you want native push (FCM), biometrics, and native maps, you need a Flutter client.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 5 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">📊</span><h4>Data Classification System (35+ Classification JSONs)</h4><span class="pri high">HIGH</span>
+    </div>
+    <div class="body">
+      v3 has a rich classification system — 35+ JSON files categorizing IBEW locals by their trade specialization (alarm_signal, bridge_operators, cable_splicers, communications, craneman, electrical_manufacturing, lineman, powerhouse, railroad, utility, etc.). Trampbook's <code>locals</code> table doesn't capture this.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy <code>data/classifications/</code> — all 35+ JSON files</li>
+        <li><span class="n">2</span>Copy <code>data/inside_locals.json</code> and <code>data/outside_locals.json</code> — the inside/outside classification</li>
+        <li><span class="n">3</span>Copy <code>data/masters/master.json</code> — the master local directory</li>
+        <li><span class="n">4</span>Add a <code>classification</code> column to Trampbook's <code>locals</code> table (new Drizzle migration)</li>
+        <li><span class="n">5</span>Write a seed script to import the classification data into MySQL</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (v3)</div>
+        <div class="path">data/classifications/*.json · data/inside_locals.json · data/outside_locals.json · data/masters/master.json</div>
+        <div class="lbl">Target (TB)</div>
+        <div class="path">trampbook/data/classifications/ · new Drizzle migration for classification column</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 6 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🔗</span><h4>Crawl4AI Extraction Strategies (Vendored Library + Custom Strategies)</h4><span class="pri med">MEDIUM</span>
+    </div>
+    <div class="body">
+      v3 vendored the entire Crawl4AI library and built custom extraction strategies on top of it. Trampbook has a thin Python bridge (<code>scrapers/crawl4ai_extract.py</code>) but doesn't use the advanced strategies.
+      <ul class="steps">
+        <li><span class="n">1</span>Do <strong>NOT</strong> copy the vendored <code>crawl4ai/crawl4ai/</code> library — install via <code>pip install crawl4ai</code> instead</li>
+        <li><span class="n">2</span>Copy <code>scripts/crawlers/jsonxpathextractionstrategy.py</code> — XPath-based table extraction</li>
+        <li><span class="n">3</span>Copy <code>scripts/crawlers/llm_css_extractor.py</code> — LLM-powered CSS selector generation</li>
+        <li><span class="n">4</span>Copy <code>scripts/crawlers/advanced_llm_extraction.py</code> — LLM extraction with Pydantic schemas</li>
+        <li><span class="n">5</span>Copy <code>scripts/crawlers/agentic_crawler.py</code> — agentic crawling with keyword mapping</li>
+        <li><span class="n">6</span>Integrate these strategies into Trampbook's <code>scripts/hybrid/core/</code> pipeline</li>
+      </ul>
+      <div class="files">
+        <div class="lbl">Source (v3)</div>
+        <div class="path">scripts/crawlers/*.py (NOT crawl4ai/crawl4ai/)</div>
+        <div class="lbl">Target (TB)</div>
+        <div class="path">trampbook/scripts/hybrid/strategies/</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 7 -->
+  <div class="mig-item">
+    <div class="head">
+      <span class="ico">🌐</span><h4>Proxy Infrastructure (BrightData + CAPTCHA Solving)</h4><span class="pri med">MEDIUM</span>
+    </div>
+    <div class="body">
+      v3 uses BrightData scraping browser proxy with CAPTCHA solving. Trampbook uses direct fetch with no proxy. For the ~4 UnionWorx SPA boards that need JavaScript rendering, a proxy is necessary.
+      <ul class="steps">
+        <li><span class="n">1</span>Copy the <strong>pattern</strong> from <code>completed/proxy_examples.js</code> and <code>completed/python_proxy_examples.py</code> — but <strong>NEVER copy the credentials</strong></li>
+        <li><span class="n">2</span>Store BrightData credentials in <code>.env</code>: <code>BRIGHTDATA_AUTH=...</code>, <code>SBR_WS_ENDPOINT=...</code></li>
+        <li><span class="n">3</span>Add proxy support to Trampbook's <code>scrapers/utils.ts</code> — <code>fetchWithProxy()</code> that uses BrightData when <code>authWalled</code> or <code>needsJS</code> is true</li>
+        <li><span class="n">4</span>Use Playwright (not Puppeteer) for consistency with Trampbook's Python scrapers</li>
+        <li><span class="n">5</span><strong>Rotate all v3 credentials immediately</strong> — they are compromised in git history</li>
+      </ul>
+      <div class="warn-box" style="margin-top:12px">
+        <div class="title">🔴 SECURITY: Rotate These Credentials NOW</div>
+        <p>The following are committed in v3's git history and must be rotated before any production deployment:<br>
+        • BrightData: <code>brd-customer-hl_482339a5-zone-scraping222_111:484fl5v89aaf</code><br>
+        • Firebase: <code>completed/config/firebase_config.json</code> (service account key)<br>
+        • OpenAI: referenced in <code>completed/226.js</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: Migration Timeline -->
+<section id="timeline">
+  <div class="section-head">
+    <span class="num">03</span>
+    <h2>Migration Timeline & Phasing</h2>
+    <span class="tag">critical path</span>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:1.1rem;margin-bottom:24px">If target is Journeyman-Jobs (Flutter app + new server):</h3>
+
+    <div class="phase p1">
+      <div class="marker">P1</div>
+      <div class="content">
+        <h4 style="color:var(--red-2)">Security Remediation + Server Foundation</h4>
+        <div class="dur">Week 1 · ~5 days</div>
+        <p>Rotate all v3 credentials. Set up Express + tRPC server. Migrate Drizzle schema + run migrations. Wire basic auth (JWT exchange from Firebase tokens). This is the non-negotiable foundation — nothing else works without it.</p>
+      </div>
+    </div>
+
+    <div class="phase p2">
+      <div class="marker">P2</div>
+      <div class="content">
+        <h4 style="color:var(--amber-2)">Scraper Migration + Normalization</h4>
+        <div class="dur">Week 2-3 · ~10 days</div>
+        <p>Copy all 6 platform adapters + catalog + utils. Copy NormalizedJobListing schema. Refactor parseUnionActiveTable (split into 3 functions). Wire adapters to write to MySQL via Drizzle. Run eval framework against existing v3 scrapers for baseline. Copy cron scheduler + notification stack.</p>
+      </div>
+    </div>
+
+    <div class="phase p3">
+      <div class="marker">P3</div>
+      <div class="content">
+        <h4 style="color:var(--blue-2)">AI/RAG + OCR Pipeline</h4>
+        <div class="dur">Week 4 · ~5 days</div>
+        <p>Copy RAG system + dual-backend AI + context injection. Copy CBA/wage sheet OCR pipeline. Run RAG loaders to seed embeddings. Replace Flutter's direct google_generative_ai calls with tRPC AI endpoints. Copy job call automation + book sign approval.</p>
+      </div>
+    </div>
+
+    <div class="phase p4">
+      <div class="marker">P4</div>
+      <div class="content">
+        <h4 style="color:var(--green-2)">Flutter Integration + Testing</h4>
+        <div class="dur">Week 5-6 · ~10 days</div>
+        <p>Replace Firestore SDK calls in Flutter with tRPC API calls. Wire push notifications through new server. Update Flutter auth to use JWT exchange. Run full scraper eval. Fix test failures. Production deploy.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3 style="font-size:1.1rem;margin-bottom:24px">If target is Trampbook (PWA + new ML service):</h3>
+
+    <div class="phase p1">
+      <div class="marker">P1</div>
+      <div class="content">
+        <h4 style="color:var(--red-2)">ML Service Deployment + Design System</h4>
+        <div class="dur">Week 1 · ~5 days</div>
+        <p>Deploy Python ML service (FastAPI + spaCy + scikit-learn) as a sidecar. Copy trained models. Port electrical design system to CSS/components. Copy agent infrastructure (.agent/, .roo/, .clinerules/).</p>
+      </div>
+    </div>
+
+    <div class="phase p2">
+      <div class="marker">P2</div>
+      <div class="content">
+        <h4 style="color:var(--amber-2)">ML Integration + Hybrid Pipeline</h4>
+        <div class="dur">Week 2-3 · ~10 days</div>
+        <p>Wire ML NER as fallback adapter in generic.ts. Wire SVM URL classifier into url_seeder.py. Implement hybrid pipeline (P2-P5 of plan.md): core/, profiles/, runners/, normalize/. Copy Crawl4AI extraction strategies. Complete Tavily+Crawl4AI integration.</p>
+      </div>
+    </div>
+
+    <div class="phase p3">
+      <div class="marker">P3</div>
+      <div class="content">
+        <h4 style="color:var(--blue-2)">Data Enrichment + Classification</h4>
+        <div class="dur">Week 4 · ~5 days</div>
+        <p>Import 35+ classification JSONs into MySQL. Add classification column to locals table. Copy data/masters/master.json. Run bulk enrichment. Add proxy support for UnionWorx SPA boards (with .env credentials).</p>
+      </div>
+    </div>
+
+    <div class="phase p4">
+      <div class="marker">P4</div>
+      <div class="content">
+        <h4 style="color:var(--green-2)">Testing + Refactoring + Deploy</h4>
+        <div class="dur">Week 5 · ~5 days</div>
+        <p>Fix 32 test failures (update Supabase mocks → Drizzle). Refactor parseUnionActiveTable (cognitive=165). Split routers.ts into domain files. Run fabrication scan. Open firewall for HTTPS. Production deploy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: Remaining After Migration -->
+<section id="remaining">
+  <div class="section-head">
+    <span class="num">04</span>
+    <h2>What Remains After Migration</h2>
+    <span class="tag">post-migration checklist</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('rem-jj',this)">⚡ If target = Journeyman-Jobs</button>
+    <button class="tab" onclick="showTab('rem-tb',this)">🌐 If target = Trampbook</button>
+  </div>
+
+  <div id="rem-jj" class="tab-content active">
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:1rem;margin-bottom:12px">🔴 Must Fix Before Launch</h3>
+        <ul class="checklist">
+          <li><span class="box todo"></span><span class="txt"><strong>Rotate ALL v3 credentials</strong> — BrightData, Firebase key, OpenAI key are in git history</span><span class="tag crit">CRIT</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Remove 92 print() calls</strong> in Flutter — replace with StructuredLogger</span><span class="tag crit">CRIT</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Migrate lib/legacy/ (144 nodes)</strong> — FlutterFlow shims must be absorbed into core or deleted</span><span class="tag crit">CRIT</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Complete settings screen</strong> — TODO-TASKS.md outlines full scope, wire every setting to MySQL</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Replace Firestore SDK calls</strong> — all Flutter data access must go through tRPC API</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Write Firestore → MySQL migration script</strong> — one-time data port</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Update Flutter pubspec.yaml</strong> — add tRPC client, remove direct Firestore dependency (keep firebase_auth)</span><span class="tag high">HIGH</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1rem;margin-bottom:12px">🟡 Should Do Before Launch</h3>
+        <ul class="checklist">
+          <li><span class="box todo"></span><span class="txt"><strong>Finish circuit background redesign</strong> — 10-phase plan (implementation-plan.md), Version A + B</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Integrate ML pipeline into production scrapers</strong> — v3's ML exists but isn't wired to runAllScrapers</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Refactor registerAuthRoutes</strong> — cx=64, split into per-route handlers</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Split routers.ts</strong> — 1377 lines → 5 domain router files</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Add eval CI integration</strong> — run fabrication scan on every scraper run</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Write a real TODO.md</strong> — the file is currently empty</span><span class="tag low">LOW</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:1rem;margin-bottom:12px">🟢 Already Done (Keep As-Is)</h3>
+      <ul class="checklist">
+        <li><span class="box done"></span><span class="txt"><strong>Flutter app scaffolded</strong> — 417 Dart files, 120K LOC, full feature set</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Design system</strong> — 970 nodes, electrical circuit theme, themed components</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Core features</strong> — jobs, crews, storm, settings, onboarding, unions, tools, auth</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Agent infrastructure</strong> — 51 skills, .roo rules, .clinerules</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Test suite</strong> — 10 test files (unit, integration, perf, architecture)</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="rem-tb" class="tab-content">
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:1rem;margin-bottom:12px">🔴 Must Fix Before Launch</h3>
+        <ul class="checklist">
+          <li><span class="box todo"></span><span class="txt"><strong>Fix 32 test failures</strong> — tests mock old Supabase REST API, code uses Drizzle ORM</span><span class="tag crit">CRIT</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Refactor parseUnionActiveTable</strong> — cognitive=165, 8 loops. Split into 3+ functions</span><span class="tag crit">CRIT</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Split routers.ts</strong> — 1377 lines in one file → 5 domain router files</span><span class="tag crit">CRIT</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Complete hybrid pipeline</strong> — scripts/hybrid/ has only .gitkeep files. Implement core/, profiles/, runners/, normalize/</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Open firewall for HTTPS</strong> — deploy config is ready, port not opened</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Wire ML fallback adapter</strong> — after migrating ML models, wire NER as generic.ts fallback</span><span class="tag high">HIGH</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1rem;margin-bottom:12px">🟡 Should Do Before Launch</h3>
+        <ul class="checklist">
+          <li><span class="box todo"></span><span class="txt"><strong>Refactor registerAuthRoutes</strong> — cx=64, split into per-route handlers</span><span class="tag high">HIGH</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Implement "Hey SLIM" wake word</strong> — Web Speech API continuous listening</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Add pull-to-refresh</strong> — mobile gesture for Job Calls page</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Port electrical design system</strong> — CSS theme + animated background</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Run fabrication scan in CI</strong> — eval framework exists but isn't automated</span><span class="tag med">MED</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Add proxy support for UnionWorx</strong> — ~4 SPA boards need JS rendering</span><span class="tag low">LOW</span></li>
+          <li><span class="box todo"></span><span class="txt"><strong>Test PWA install from phone</strong> — verify service worker + manifest</span><span class="tag low">LOW</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:1rem;margin-bottom:12px">🟢 Already Done (Keep As-Is)</h3>
+      <ul class="checklist">
+        <li><span class="box done"></span><span class="txt"><strong>Full-stack PWA</strong> — React 19 + Express + tRPC + Drizzle/MySQL</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>16 pages</strong> — Home, StormRoster, Dashboard, PayScales, JobsAvailable, AIAssistant, etc.</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>6 scraper adapters</strong> — UnionActive, WorkingSystems, WSI, UnionWorx, Generic, custom</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>RAG system</strong> — embeddings, chunking, cosine similarity</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>10 DB migrations</strong> — versioned schema</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Eval framework</strong> — gold standard, criteria hash, bake-off, fabrication scan</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Notification stack</strong> — Push + SMS (Twilio) + Email (Nodemailer/Resend)</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Cron scheduler</strong> — twice-daily automated scraping</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>Deployment config</strong> — nginx, deploy-webhook, production build</span></li>
+        <li><span class="box done"></span><span class="txt"><strong>65 TS errors fixed</strong> — tsc --noEmit passes clean</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: Risk Assessment -->
+<section id="risks">
+  <div class="section-head">
+    <span class="num">05</span>
+    <h2>Risk Assessment & Mitigation</h2>
+    <span class="tag">critical analysis</span>
+  </div>
+
+  <div class="grid-2">
+    <div class="card" style="border-color:var(--red)">
+      <h3 style="font-size:1rem;color:var(--red-2);margin-bottom:12px">🔴 High Risks</h3>
+      <div class="warn-box" style="margin-top:0">
+        <div class="title">Credential Exposure (v3)</div>
+        <p>BrightData, Firebase, and OpenAI credentials are in git history. Even after rotation, if the repo is public or shared, historical commits expose them. <strong>Mitigation:</strong> Rotate all credentials, use BFG repo-cleaner to scrub history, move all secrets to .env immediately.</p>
+      </div>
+      <div class="warn-box">
+        <div class="title">parseUnionActiveTable (TB)</div>
+        <p>Cognitive complexity 165 with 8 nested loops. This function is a bug factory — any change to UnionActive's HTML will break it in unpredictable ways. <strong>Mitigation:</strong> Split into row parsing, detail parsing, and normalization. Add unit tests with frozen HTML snapshots.</p>
+      </div>
+      <div class="warn-box">
+        <div class="title">Firestore → MySQL Data Loss</div>
+        <p>If migrating JJ to MySQL, Firestore's schemaless nature means some documents may have fields that don't fit the Drizzle schema. <strong>Mitigation:</strong> Write a validation script that checks every Firestore document against the Drizzle schema before migration. Log and manually resolve mismatches.</p>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--amber)">
+      <h3 style="font-size:1rem;color:var(--amber-2);margin-bottom:12px">🟡 Medium Risks</h3>
+      <div class="info-box" style="margin-top:0">
+        <div class="title">ML Model Drift</div>
+        <p>v3's spaCy NER model was trained on a specific dataset. If IBEW websites change their HTML structure, the model's accuracy will degrade. <strong>Mitigation:</strong> Run the eval framework weekly. Set an accuracy threshold (e.g., 85%). If it drops, retrain with new labeled data.</p>
+      </div>
+      <div class="info-box">
+        <div class="title">Scraper IP Bans</div>
+        <p>Trampbook's direct fetch (no proxy) may get IP-banned by IBEW websites that detect scraping. v3's BrightData proxy avoids this but is expensive. <strong>Mitigation:</strong> Start without proxy. If bans occur, add BrightData proxy for problematic locals only. Store credentials in .env.</p>
+      </div>
+      <div class="info-box">
+        <div class="title">Flutter → tRPC Migration</div>
+        <p>Replacing Firestore SDK calls with tRPC API calls in Flutter is a large refactor (14 feature directories). Risk of introducing bugs in working features. <strong>Mitigation:</strong> Migrate feature-by-feature. Keep Firestore as fallback until each feature is verified. Use the existing test suite to catch regressions.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;border-color:var(--green);background:var(--green-glow)">
+    <h3 style="font-size:1.1rem;color:var(--green-2);margin-bottom:8px">✅ Final Recommendation</h3>
+    <p style="color:var(--text-2);font-size:.95rem;line-height:1.7">
+      <strong>If you want to ship fastest:</strong> Make Trampbook the production system. It's already deployable, has a working backend, and only needs 2-3 weeks of work (fix tests, refactor 2 functions, complete hybrid pipeline, integrate ML). Journeyman-Jobs needs 5-6 weeks (build server, migrate DB, replace Firestore calls, wire scrapers).<br><br>
+      <strong>If you want the best mobile experience:</strong> Make Journeyman-Jobs the production system and accept the longer timeline. The Flutter app's native UX, offline support, and design system are worth the investment. Port Trampbook's entire backend into a new <code>server/</code> directory.<br><br>
+      <strong>If you want the best of both:</strong> Ship Trampbook as the web PWA now (2-3 weeks). In parallel, build a Flutter client that talks to Trampbook's tRPC API (4-6 weeks). This gives you both a deployable web app AND a native mobile app, sharing the same backend, database, and scraper pipeline.
+    </p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>IBEW Migration Blueprint — Cross-Project Consolidation Plan</p>
+  <p class="gen">Synthesized from: codebase-memory-mcp (JJ: 24,021 nodes · v3: 6,110 nodes · TB: 8,589 nodes) · graphify · codegraph · filesystem<br>
+  Generated: July 26, 2026 by Hermes Agent</p>
+</footer>
+
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
